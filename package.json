@@ -13,12 +13,12 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "start": "npm list && node dist/bundle.js",
+    "start": "cross-env NODE_ENV=production npm list && node src/index.js",
     "serve": "npm run build && npm start",
     "dev": "concurrently \"npx webpack --watch\" \"npm run dev-server\"",
     "dev-server": "nodemon src/index.js",
     "nodemon": "nodemon --exec node src/index.js",
-   "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "test:watch": "npm run test -- --watchAll"
   },
   "keywords": [],
