@@ -21,7 +21,7 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization", "user-role"], // Allow only these headers
   credentials: true, // Allow cookies to be included in the requests
 };
-
+app.use(cors(corsOptions));
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load env FIRST
