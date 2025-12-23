@@ -3,6 +3,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
 
 import app from "./app.js";
 import { connection } from "./db/config.js";
@@ -11,6 +12,15 @@ import errorLogger from "./logger/errorLogger.js";
 import config from "./config/config.js";
 import { startKeepAliveCron } from "./cron/serverRunningUp.js";
 import { startDeleteDuplicatesCron } from "./cron/deleteDuplicates.js";
+
+app.use(cors());
+
+const corsOptions = {
+  origin: "*", // Allow all origins
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow only these HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization", "user-role"], // Allow only these headers
+  credentials: true, // Allow cookies to be included in the requests
+};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
