@@ -44,11 +44,11 @@ const resolveMongoUri = () => {
 /**
  * Resolve backup Mongo URI (soft – cron only)
  */
-const resolveBackupUri = () => {
-  if (isDev) return env("MONGO_BACKUP_URI_DEV", env("MONGO_BACKUP_URI"));
-  if (isTest) return env("MONGO_BACKUP_URI_TEST", env("MONGO_BACKUP_URI"));
-  return env("MONGO_BACKUP_URI_PROD", env("MONGO_BACKUP_URI"));
-};
+// const resolveBackupUri = () => {
+//   if (isDev) return env("MONGO_BACKUP_URI_DEV", env("MONGO_BACKUP_URI"));
+//   if (isTest) return env("MONGO_BACKUP_URI_TEST", env("MONGO_BACKUP_URI"));
+//   return env("MONGO_BACKUP_URI_PROD", env("MONGO_BACKUP_URI"));
+// };
 
 /**
  * 🔒 HARD guards for production-only secrets
@@ -71,7 +71,7 @@ export default {
 
   database: {
     uri: resolveMongoUri(), // primary DB (hard in prod)
-    backupUri: resolveBackupUri(), // backup DB (soft)
+    // backupUri: resolveBackupUri(), // backup DB (soft)
   },
 
   auth: {

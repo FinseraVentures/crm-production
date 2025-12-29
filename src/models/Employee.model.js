@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import applyBase from "./Base.model.js";
 
 const employeeProfileSchema = mongoose.Schema(
   {
@@ -110,9 +111,7 @@ const employeeProfileSchema = mongoose.Schema(
       default: "pending_review",
     },
 
-    // Audit trail
-    createdBy: { type: String },
-    updatedBy: { type: String },
+    // Audit trail (createdBy/updatedBy provided by Base model)
     approvedBy: { type: String },
     approvedAt: { type: Date },
 
@@ -184,4 +183,5 @@ employeeProfileSchema.index({ branch: 1 });
 employeeProfileSchema.index({ personalEmailAddress: 1 });
 employeeProfileSchema.index({ workEmail: 1 });
 
+applyBase(employeeProfileSchema);
 export default mongoose.model("Employee", employeeProfileSchema);

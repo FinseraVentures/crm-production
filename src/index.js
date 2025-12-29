@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
-
 import app from "./app.js";
 import { connection } from "./db/config.js";
 import logger from "./logger/index.js";

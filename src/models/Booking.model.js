@@ -1,10 +1,16 @@
 import mongoose from "mongoose";
+import applyBase from "./Base.model.js";
 
 
 const bookingSchema = mongoose.Schema(
   {
     user_id:{type:String,required:true},
-    bdm:{type:String,required:true},
+    bdmName:{type:String,required:true},
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
     branch_name: { type: String, required: true },
     company_name: { type: String },
     contact_person: { type: String, required: true },
@@ -42,16 +48,11 @@ const bookingSchema = mongoose.Schema(
         }
       }
     ],
-    // New fields for Trash system
-  isDeleted: { type: Boolean, default: false },
-  deletedAt: { type: Date, default: null },
-  deletedBy: {
-    type: String,
-    default: null,
-  }
+    // Trash/audit fields are provided by Base model
   },
   { versionKey: false ,
     timestamps: true
   }
 );
-export  default mongoose.model("Booking", bookingSchema);
+applyBase(bookingSchema);
+export default mongoose.model("Booking", bookingSchema);

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import applyBase from "./Base.model.js";
 
 const invoceSchema = mongoose.Schema(
   {
@@ -15,6 +16,12 @@ const invoceSchema = mongoose.Schema(
     gstAmount: { type: Number, required: true },
     total: { type: Number, required: true },
     includeGst: { type: Boolean },
+    // Reference to TaxInvoice (optional linkage)
+    taxInvoice: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TaxInvoice",
+      default: null,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // model name you want to populate from
@@ -27,4 +34,5 @@ const invoceSchema = mongoose.Schema(
   }
 );
 
+applyBase(invoceSchema);
 export default mongoose.model("Invoice", invoceSchema);

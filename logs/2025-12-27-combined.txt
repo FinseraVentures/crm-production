@@ -1,0 +1,2 @@
+{"level":"info","message":"✅ Database connected","timestamp":"2025-12-27T11:35:50.802Z"}
+{"level":"info","message":"🚀 Server running on port 5000","timestamp":"2025-12-27T11:35:50.805Z"}

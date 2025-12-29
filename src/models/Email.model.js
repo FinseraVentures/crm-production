@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import applyBase from "./Base.model.js";
 
 const emailSchema = mongoose.Schema(
 	{
@@ -17,4 +18,5 @@ const emailSchema = mongoose.Schema(
 	}
 );
 
+applyBase(emailSchema);
 export default mongoose.model("Email", emailSchema);
