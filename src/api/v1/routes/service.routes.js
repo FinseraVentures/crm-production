@@ -38,7 +38,7 @@ const ServiceRoutes = express.Router();
 
 /**
  * @swagger
- * /api/services:
+ * /api/v1/services:
  *   post:
  *     summary: Add a new service
  *     tags: [Services]
@@ -71,7 +71,7 @@ const ServiceRoutes = express.Router();
  *         description: Server error
  */
 // Route to add a new service
-ServiceRoutes.post("/api/services", async (req, res) => {
+ServiceRoutes.post("/services", async (req, res) => {
   // console.log(req.body)
   const { label, value, status } = req.body;
 
@@ -99,7 +99,7 @@ ServiceRoutes.post("/api/services", async (req, res) => {
 
 /**
  * @swagger
- * /api/services/{id}:
+ * /api/v1/services/{id}:
  *   patch:
  *     summary: Update service details (dev only)
  *     tags: [Services]
@@ -132,7 +132,7 @@ ServiceRoutes.post("/api/services", async (req, res) => {
  */
 //edit service
 ServiceRoutes.patch(
-  "/api/services/:id",
+  "/services/:id",
   authenticateUser,
   authorizeDevRole,
   async (req, res) => {
@@ -171,7 +171,7 @@ ServiceRoutes.patch(
 );
 /**
  * @swagger
- * /api/services:
+ * /api/v1/services:
  *   get:
  *     summary: Get all services
  *     tags: [Services]
@@ -186,7 +186,7 @@ ServiceRoutes.patch(
  *         description: Server error
  */
 //getting all services
-ServiceRoutes.get("/api/services", authenticateUser, async (req, res) => {
+ServiceRoutes.get("/services", authenticateUser, async (req, res) => {
   try {
     // Fetch all services from the database
     const services = await Service.find();
@@ -207,7 +207,7 @@ ServiceRoutes.get("/api/services", authenticateUser, async (req, res) => {
 });
 /**
  * @swagger
- * /api/services/{id}:
+ * /api/v1/services/{id}:
  *   delete:
  *     summary: Delete a service (dev only)
  *     tags: [Services]
@@ -229,7 +229,7 @@ ServiceRoutes.get("/api/services", authenticateUser, async (req, res) => {
  */
 
 ServiceRoutes.delete(
-  "/api/services/:id",
+  "/services/:id",
   authenticateUser,
   authorizeDevRole,
   async (req, res) => {

@@ -12,7 +12,7 @@ const EmailRoutes = express.Router();
 
 /**
  * @swagger
- * /email/add:
+ * api/v1/email/add:
  *   post:
  *     summary: Create a new email enquiry
  *     tags: [Emails]
@@ -98,7 +98,7 @@ EmailRoutes.post("/add", async (req, res) => {
 
 /**
  * @swagger
- * /email/all:
+ * api/v1/email/all:
  *   get:
  *     summary: Get all email enquiries
  *     tags: [Emails]
@@ -122,7 +122,7 @@ EmailRoutes.get("/all", async (req, res) => {
 
 /**
  * @swagger
- * /email/{id}:
+ * api/v1/email/{id}:
  *   get:
  *     summary: Get single email enquiry by ID
  *     tags: [Emails]
@@ -156,7 +156,7 @@ EmailRoutes.get("/:id", async (req, res) => {
 
 /**
  * @swagger
- * /email/{id}:
+ * api/v1/email/{id}:
  *   patch:
  *     summary: Update email enquiry by ID
  *     tags: [Emails]
@@ -202,7 +202,7 @@ EmailRoutes.patch("/:id", async (req, res) => {
 
 /**
  * @swagger
- * /email/{id}:
+ * api/v1/email/{id}:
  *   delete:
  *     summary: Permanently delete email enquiry
  *     tags: [Emails]

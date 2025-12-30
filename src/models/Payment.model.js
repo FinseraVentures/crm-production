@@ -24,6 +24,11 @@ const paymentLinkSchema = new mongoose.Schema(
       ref: "User", // model name you want to populate from
       required: true, // true if every doc must have a bdm
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     description: {
       type: String,

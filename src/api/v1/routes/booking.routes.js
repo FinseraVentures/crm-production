@@ -150,7 +150,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/editbooking/{id}:
+ * api/v1/booking/editbooking/{id}:
  *   patch:
  *     summary: Edit an existing booking
  *     tags: [Bookings]
@@ -264,7 +264,7 @@ BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/trash/{id}:
+ * api/v1/booking/trash/{id}:
  *   patch:
  *     summary: Move booking to trash (soft delete)
  *     tags: [Bookings]
@@ -341,7 +341,7 @@ BookingRoutes.get("/trash", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/restore/{id}:
+ * api/v1/booking/restore/{id}:
  *   patch:
  *     summary: Restore a trashed booking
  *     tags: [Bookings]
@@ -392,7 +392,7 @@ BookingRoutes.patch("/restore/:id", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/deletebooking/{id}:
+ * api/v1/booking/deletebooking/{id}:
  *   delete:
  *     summary: Permanently delete a booking
  *     tags: [Bookings]
@@ -450,7 +450,7 @@ BookingRoutes.delete(
 
 /**
  * @swagger
- * /booking/getbooking/{id}:
+ * api/v1/booking/getbooking/{id}:
  *   get:
  *     summary: Get booking by ID
  *     tags: [Bookings]
@@ -495,7 +495,7 @@ BookingRoutes.get("/getbooking/:id", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/all:
+ * api/v1/booking/all:
  *   get:
  *     summary: Get all bookings
  *     tags: [Bookings]
@@ -531,7 +531,7 @@ BookingRoutes.get("/all", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/bookings/filter:
+ * api/v1/booking/bookings/filter:
  *   get:
  *     summary: Filter bookings with advanced filters
  *     tags: [Bookings]
@@ -680,7 +680,7 @@ BookingRoutes.get("/bookings/filter", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /booking/getbookings/user/{userId}:
+ * api/v1/booking/getbookings/user/{userId}:
  *   get:
  *     summary: Get bookings by user ID
  *     tags: [Bookings]

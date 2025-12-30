@@ -13,7 +13,7 @@ const LeadRoutes = express.Router();
 
 /**
  * @swagger
- * /leads/all:
+ * api/v1/leads/all:
  *   get:
  *     summary: Get all unassigned leads
  *     tags: [Leads]
@@ -66,7 +66,7 @@ LeadRoutes.get("/all", async (req, res) => {
 
 /**
  * @swagger
- * /leads/edit/{id}:
+ * api/v1/leads/edit/{id}:
  *   patch:
  *     summary: Update a lead by ID
  *     tags: [Leads]
@@ -117,7 +117,7 @@ LeadRoutes.patch("/edit/:id", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /leads/trash/{id}:
+ * api/v1/leads/trash/{id}:
  *   patch:
  *     summary: Move lead to trash (soft delete)
  *     tags: [Leads]
@@ -169,7 +169,7 @@ LeadRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
 
 /**
  * @swagger
- * /leads/delete/{id}:
+ * api/v1/leads/delete/{id}:
  *   delete:
  *     summary: Permanently delete a lead (srdev only)
  *     tags: [Leads]

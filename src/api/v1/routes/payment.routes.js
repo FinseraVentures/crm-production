@@ -26,7 +26,7 @@ const razorpay = new Razorpay({
 
 /**
  * @swagger
- * /payments/create-upi-link:
+ * api/v1/payments/create-upi-link:
  *   post:
  *     summary: Create Razorpay UPI payment link
  *     tags: [Payments]
@@ -164,11 +164,166 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * api/v1/payments/api/payment-links:
+ *   get:
+ *     summary: Get all payment links
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of payment links
+ *       500:
+ *         description: Server error
+ */
+
+// 🟠 GET ALL PAYMENT LINKS
+PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
+  try {
+    const paymentLinks = await PaymentLink.find().sort({ createdOn: -1 });
+
+    res.json({
+      success: true,
+      count: paymentLinks.length,
+      data: paymentLinks,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * api/v1/payments/payment-links/{id}/status:
+ *   patch:
+ *     summary: Update payment link status
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: paid
+ *     responses:
+ *       200:
+ *         description: Status updated successfully
+ *       400:
+ *         description: Status missing
+ *       404:
+ *         description: Payment link not found
+ *       500:
+ *         description: Update failed
+ */
+
+// 🔵 UPDATE PAYMENT LINK STATUS (PATCH)
+PaymentRoutes.patch(
+  "/payment-links/:id/status",
+  authenticateUser,
+  async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate input
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required.",
+      });
+    }
+
+    try {
+      //  Patch only the provided field
+      const updated = await PaymentLink.findByIdAndUpdate(
+        id,
+        { $set: { status } },
+        { new: true, runValidators: true }
+      );
+
+      //  If ID is invalid or no document found
+      if (!updated) {
+        return res.status(404).json({
+          success: false,
+          message: "Payment link not found.",
+        });
+      }
+
+      // Success response
+      return res.status(200).json({
+        success: true,
+        message: "Payment link status updated successfully.",
+        data: updated,
+      });
+    } catch (error) {
+      console.error("Status update error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update payment link status.",
+        error: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * api/v1/payments/payment-links/{id}:
+ *   get:
+ *     summary: Get payment link by ID
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Payment link fetched successfully
+ *       404:
+ *         description: Payment link not found
+ *       400:
+ *         description: Invalid ID
+ */
+
+// 🔴 GET PAYMENT LINK BY ID
+PaymentRoutes.get("/payment-links/:id", authenticateUser, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const paymentLink = await PaymentLink.findById(id);
+
+    if (!paymentLink) {
+      return res.status(404).json({ success: false, message: "Not found" });
+    }
+
+    res.json({ success: true, data: paymentLink });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
 // 🟣 CREATE QR CODE + SAVE LOG
 
 /**
  * @swagger
- * /payments/create-qr:
+ * api/v1/payments/create-qr:
  *   post:
  *     summary: Create Razorpay UPI QR code
  *     tags: [Payments]
@@ -212,10 +367,12 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
  *         description: QR creation failed
  */
 PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
+  const ownerUserId = req.user._id;
+  // console.log(ownerUserId);
+
   try {
     const {
       amount,
-      user,
       name,
       description,
       customer_id,
@@ -226,7 +383,7 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
       userName,
     } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     if (!amount || !name) {
       return res
@@ -292,7 +449,7 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
     try {
       savedQR = await PaymentQr.create({
         name,
-        user,
+        user: ownerUserId,
         amount,
         description,
         qr_id: qr.id,
@@ -303,7 +460,6 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
         close_by: closeBy,
         qr_base64: base64QR ? `data:image/png;base64,${base64QR}` : null,
         status: "Pending",
-        createdOn: new Date(),
       });
     } catch (dbErr) {
       console.error("Failed to save QR to DB:", dbErr);
@@ -325,167 +481,6 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
       .json({ success: false, message: err.message || "QR creation failed" });
   }
 });
-
-/**
- * @swagger
- * /payments/api/payment-links:
- *   get:
- *     summary: Get all payment links
- *     tags: [Payments]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of payment links
- *       500:
- *         description: Server error
- */
-
-// 🟠 GET ALL PAYMENT LINKS
-PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
-  try {
-    const paymentLinks = await PaymentLink.find().sort({ createdOn: -1 });
-
-    res.json({
-      success: true,
-      count: paymentLinks.length,
-      data: paymentLinks,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-/**
- * @swagger
- * /payments/api/payment-links/{id}/status:
- *   patch:
- *     summary: Update payment link status
- *     tags: [Payments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - status
- *             properties:
- *               status:
- *                 type: string
- *                 example: paid
- *     responses:
- *       200:
- *         description: Status updated successfully
- *       400:
- *         description: Status missing
- *       404:
- *         description: Payment link not found
- *       500:
- *         description: Update failed
- */
-
-// 🔵 UPDATE PAYMENT LINK STATUS (PATCH)
-PaymentRoutes.patch(
-  "/api/payment-links/:id/status",
-  authenticateUser,
-  async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    // Validate input
-    if (!status) {
-      return res.status(400).json({
-        success: false,
-        message: "Status is required.",
-      });
-    }
-
-    try {
-      //  Patch only the provided field
-      const updated = await PaymentLink.findByIdAndUpdate(
-        id,
-        { $set: { status } },
-        { new: true, runValidators: true }
-      );
-
-      //  If ID is invalid or no document found
-      if (!updated) {
-        return res.status(404).json({
-          success: false,
-          message: "Payment link not found.",
-        });
-      }
-
-      // Success response
-      return res.status(200).json({
-        success: true,
-        message: "Payment link status updated successfully.",
-        data: updated,
-      });
-    } catch (error) {
-      console.error("Status update error:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to update payment link status.",
-        error: error.message,
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /payments/api/payment-links/{id}:
- *   get:
- *     summary: Get payment link by ID
- *     tags: [Payments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Payment link fetched successfully
- *       404:
- *         description: Payment link not found
- *       400:
- *         description: Invalid ID
- */
-
-// 🔴 GET PAYMENT LINK BY ID
-PaymentRoutes.get(
-  "/api/payment-links/:id",
-  authenticateUser,
-  async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      const paymentLink = await PaymentLink.findById(id);
-
-      if (!paymentLink) {
-        return res.status(404).json({ success: false, message: "Not found" });
-      }
-
-      res.json({ success: true, data: paymentLink });
-    } catch (error) {
-      res.status(400).json({ success: false, error: error.message });
-    }
-  }
-);
-
 //Get all Qr codes
 PaymentRoutes.get("/qr-codes", authenticateUser, async (req, res) => {
   try {
@@ -497,7 +492,7 @@ PaymentRoutes.get("/qr-codes", authenticateUser, async (req, res) => {
     }
 
     const qrCodes = await PaymentQr.find(filter)
-      .populate("user", "name email user_role") // populate minimal safe fields
+      .populate("user", "_id name email") // 👈 creator info
       .sort({ createdAt: -1 });
 
     return res.status(200).json({

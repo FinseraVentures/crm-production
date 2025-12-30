@@ -16,6 +16,18 @@ const env = (key, defaultValue = undefined) => {
   return value ?? defaultValue;
 };
 
+const parseBool = (value, defaultValue = false) => {
+  if (value === undefined) return defaultValue;
+  if (typeof value === "boolean") return value;
+  return String(value).toLowerCase() === "true";
+};
+
+const parseNumber = (value, defaultValue) => {
+  if (value === undefined) return defaultValue;
+  const n = Number(value);
+  return Number.isNaN(n) ? defaultValue : n;
+};
+
 /**
  * Hard env getter (crashes app if missing)
  */
@@ -66,7 +78,7 @@ export default {
   isProd,
 
   server: {
-    port: env("PORT", 5000),
+    port: parseNumber(env("PORT", undefined), 5000),
   },
 
   database: {
@@ -81,14 +93,14 @@ export default {
 
   logging: {
     level: env("LOG_LEVEL", isDev ? "debug" : "info"),
-    toConsole: env("LOG_TO_CONSOLE", "true") === "true",
-    toFile: env("LOG_TO_FILE", isProd ? "true" : "false") === "true",
+    toConsole: parseBool(env("LOG_TO_CONSOLE", undefined), true),
+    toFile: parseBool(env("LOG_TO_FILE", undefined), isProd),
     directory: env("LOG_DIRECTORY", "logs"),
-    compress: env("LOG_COMPRESS", isProd ? "true" : "false") === "true",
+    compress: parseBool(env("LOG_COMPRESS", undefined), isProd),
 
     external: {
       host: env("LOG_EXTERNAL_HOST", ""),
-      port: env("LOG_EXTERNAL_PORT", ""),
+      port: parseNumber(env("LOG_EXTERNAL_PORT", undefined), undefined),
       token: env("LOG_EXTERNAL_TOKEN", ""),
     },
   },
@@ -99,7 +111,7 @@ export default {
 
   rateLimit: {
     windowMs: env("RATE_LIMIT_WINDOW", "15m"),
-    max: env("RATE_LIMIT_MAX", 100),
+    max: parseNumber(env("RATE_LIMIT_MAX", undefined), 100),
   },
 
   razorpay: {

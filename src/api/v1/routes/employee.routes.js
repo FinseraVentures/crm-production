@@ -111,7 +111,7 @@ router.use(authenticateUser);
 
 /**
  * @swagger
- * /employees/all:
+ * api/v1/employees/all:
  *   get:
  *     summary: Get all employee profiles (HR only)
  *     tags: [Employees]
@@ -204,7 +204,7 @@ router.get("/all", authorizeHROnly, async (req, res) => {
 
 /**
  * @swagger
- * /employees/profile/{id}:
+ * api/v1/employees/profile/{id}:
  *   get:
  *     summary: Get employee profile (self or HR)
  *     tags: [Employees]
@@ -247,7 +247,7 @@ router.get("/profile/:id", authorizeSelfOrHR, async (req, res) => {
 
 /**
  * @swagger
- * /employees/profile:
+ * api/v1/employees/profile:
  *   post:
  *     summary: Create new employee profile
  *     tags: [Employees]
@@ -374,7 +374,7 @@ router.post(
 
 /**
  * @swagger
- * /employees/update/{id}:
+ * api/v1/employees/update/{id}:
  *   put:
  *     summary: Update employee profile (HR only)
  *     tags: [Employees]
@@ -519,7 +519,7 @@ router.put("/update/:id", authorizeHROnly, async (req, res) => {
 
 /**
  * @swagger
- * /employees/delete/{id}:
+ * api/v1/employees/delete/{id}:
  *   delete:
  *     summary: Deactivate employee profile (HR only)
  *     tags: [Employees]
@@ -581,7 +581,7 @@ router.delete("/delete/:id", authorizeHROnly, async (req, res) => {
 
 /**
  * @swagger
- * /employees/approve/{id}:
+ * api/v1/employees/approve/{id}:
  *   post:
  *     summary: Approve employee profile (HR only)
  *     tags: [Employees]
@@ -651,7 +651,7 @@ router.post("/approve/:id", authorizeHROnly, async (req, res) => {
 
 /**
  * @swagger
- * /employees/stats:
+ * api/v1/employees/stats:
  *   get:
  *     summary: Get employee statistics (HR only)
  *     tags: [Employees]
@@ -719,7 +719,7 @@ router.get("/stats", authorizeHROnly, async (req, res) => {
 
 /**
  * @swagger
- * /employees/export:
+ * api/v1/employees/export:
  *   get:
  *     summary: Export employee data (HR only)
  *     tags: [Employees]
