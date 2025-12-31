@@ -5,7 +5,7 @@ const ProformaRoutes = express.Router();
 
 // Create Proforma
 ProformaRoutes.post("/create", async (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
   try {
     const p = new ProformaInvoice(req.body);
     await p.save();
@@ -28,7 +28,9 @@ ProformaRoutes.get("/view", async (req, res) => {
 // Get by id
 ProformaRoutes.get("/:id", async (req, res) => {
   try {
-    const p = await ProformaInvoice.findById(req.params.id).populate("taxInvoice");
+    const p = await ProformaInvoice.findById(req.params.id).populate(
+      "taxInvoice"
+    );
     if (!p) return res.status(404).json({ error: "ProformaInvoice not found" });
     res.json(p);
   } catch (err) {

@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-console.log("User model loaded");
-
+// console.log("User model loaded");
 
 const userSchema = mongoose.Schema(
   {
@@ -11,13 +10,12 @@ const userSchema = mongoose.Schema(
     user_role: { type: String, required: true },
     isActive: { type: Boolean, default: false },
     resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date }
+    resetPasswordExpires: { type: Date },
   },
-  { 
-    timestamps: false, 
-    versionKey: false
+  {
+    timestamps: false,
+    versionKey: false,
   }
 );
 
-
-export default  mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

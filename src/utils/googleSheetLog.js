@@ -14,7 +14,7 @@ export async function appendToGoogleSheet(payload) {
     __secret: APPSCRIPT_SECRET, // used by Apps Script to authenticate
   };
 
-  console.log(payload, "Payload");
+  // console.log(payload, "Payload");
 
   const res = await fetch(APPSCRIPT_URL, {
     method: "POST",

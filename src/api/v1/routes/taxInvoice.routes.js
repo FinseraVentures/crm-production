@@ -5,12 +5,12 @@ const TaxInvoiceRoutes = express.Router();
 
 // Create TaxInvoice
 TaxInvoiceRoutes.post("/create", async (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
   try {
     const inv = new TaxInvoice(req.body);
     await inv.save();
     res.status(201).json(inv);
-    console.log(res ,"sss")
+    // console.log(res ,"sss")
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

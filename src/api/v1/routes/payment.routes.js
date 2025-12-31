@@ -91,7 +91,7 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
       userName,
     } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     if (!amount || !email || !phone) {
       return res
