@@ -181,23 +181,27 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
 // 🟠 GET ALL PAYMENT LINKS
 PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
   try {
-    const { userId } = req.query; // optional filter
-
     const filter = {};
-    if (userId) {
-      filter.user = userId;
+    const elevatedRoles = ["admin", "senior admin", "dev", "srdev"];
+
+    if (!elevatedRoles.includes(req.user.user_role)) {
+      filter.user = req.user._id;
     }
+
     const paymentLinks = await PaymentLink.find(filter)
-      .populate("user", "_id name email") // 👈 creator info
+      .populate("user", "_id name email")
       .sort({ createdAt: -1 });
 
-    res.json({
+    return res.json({
       success: true,
       count: paymentLinks.length,
       data: paymentLinks,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 });
 
@@ -491,15 +495,17 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
 //Get all Qr codes
 PaymentRoutes.get("/qr-codes", authenticateUser, async (req, res) => {
   try {
-    const { userId } = req.query; // optional filter
-
     const filter = {};
-    if (userId) {
-      filter.user = userId;
+
+    const elevatedRoles = ["admin", "senior admin", "dev", "srdev"];
+
+    //  Restrict non-elevated users to their own QR codes
+    if (!elevatedRoles.includes(req.user.user_role)) {
+      filter.user = req.user._id;
     }
 
     const qrCodes = await PaymentQr.find(filter)
-      .populate("user", "_id name email") // 👈 creator info
+      .populate("user", "_id name email") // creator info
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -516,4 +522,5 @@ PaymentRoutes.get("/qr-codes", authenticateUser, async (req, res) => {
     });
   }
 });
+
 export default PaymentRoutes;
