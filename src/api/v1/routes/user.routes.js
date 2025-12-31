@@ -89,7 +89,20 @@ UserRoutes.post(
       };
 
       const user = await User.create(new_user);
-      return res.status(201).send(user);
+      const safeUser = user.toObject();
+      delete safeUser.password;
+
+      return res.status(201).json({
+        success: true,
+        message: "User created successfully",
+        data: {
+          _id: safeUser._id,
+          name: safeUser.name,
+          email: safeUser.email,
+          user_role: safeUser.user_role,
+          createdAt: safeUser.createdAt,
+        },
+      });
     } catch (error) {
       console.log(error.message);
       return res.status(500).send({ message: error.message });
@@ -306,10 +319,7 @@ UserRoutes.post("/auth/login", async (req, res) => {
     }
 
     // Find the user by email
-    const user = await User.findOneAndUpdate(
-      { email },
-      { isActive: true }
-    );
+    const user = await User.findOneAndUpdate({ email }, { isActive: true });
 
     if (!user) {
       return res.status(404).send({
@@ -374,7 +384,6 @@ UserRoutes.patch("/logout/:id", async (req, res) => {
     return res.status(500).send({ message: error.message });
   }
 });
-
 
 //getting all the bookings for specific user
 UserRoutes.get("/bookings/:id", authenticateUser, async (req, res) => {

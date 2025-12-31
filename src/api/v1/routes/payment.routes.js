@@ -78,6 +78,7 @@ const razorpay = new Razorpay({
 
 // 🟢 CREATE PAYMENT LINK + SAVE TO MONGO + SAVE LOG TO SHEET
 PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
+  const ownerUserId = req.user._id;
   try {
     const {
       amount,
@@ -87,7 +88,6 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
       description,
       notifyEmail = true,
       notifySms = true,
-      user,
       userName,
     } = req.body;
 
@@ -140,11 +140,10 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
       customerName: name,
       contact: phone,
       amount,
-      user,
+      user: ownerUserId,
       description,
       link: paymentLink.short_url,
       status: "pending",
-      createdOn: new Date(),
     });
 
     return res.status(200).json({
@@ -182,7 +181,15 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
 // 🟠 GET ALL PAYMENT LINKS
 PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
   try {
-    const paymentLinks = await PaymentLink.find().sort({ createdOn: -1 });
+    const { userId } = req.query; // optional filter
+
+    const filter = {};
+    if (userId) {
+      filter.user = userId;
+    }
+    const paymentLinks = await PaymentLink.find(filter)
+      .populate("user", "_id name email") // 👈 creator info
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
