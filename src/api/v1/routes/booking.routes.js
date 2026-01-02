@@ -58,9 +58,8 @@ const BookingRoutes = express.Router();
  */
 //Addbooking
 BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
+  const ownerUserId = req.user._id;
   const {
-    user_id,
-    bdm,
     branch_name,
     company_name,
     contact_person,
@@ -86,8 +85,6 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
   const requiredFields = {
     branch_name,
     contact_person,
-    user_id,
-    bdm,
     email,
     services,
     total_amount,
@@ -112,8 +109,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
 
   try {
     const new_booking = {
-      user_id,
-      bdm,
+      user: ownerUserId,
       branch_name,
       company_name: company_name || "",
       contact_person,
@@ -129,7 +125,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
       pan,
       gst: gst || "N/A",
       remark,
-      date: date || new Date(),
+      date: Date.now(),
       status,
       bank,
       state,
@@ -187,7 +183,7 @@ BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
   let updates = req.body;
 
-  const user_role = req.headers["user-role"];
+  const user_role = req.headers["user-role"] || req.user.user_role;
   if (!user_role) {
     return res.status(400).send({ message: "User role is required" });
   }
@@ -292,13 +288,15 @@ BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
 //trash
 BookingRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
-  const userRole = req.headers["user-role"];
-  const deletedBy = req.headers["user-name"];
-
-  if (!userRole || !["srdev", "dev"].includes(userRole)) {
-    return res
-      .status(403)
-      .send({ message: "Only dev or srdev can move bookings to trash." });
+  // const userRole = req.headers["user-role"];
+  // const deletedBy = req.headers["user-name"];
+  console.log("req.user", req.user);
+  const userRole = req.user.user_role;
+  const deletedBy = req.user.name;
+  if (!userRole || !["srdev", "dev", "senior admin"].includes(userRole)) {
+    return res.status(403).send({
+      message: "Only dev or srdev  , senior admin can move bookings to trash.",
+    });
   }
 
   try {
@@ -307,7 +305,7 @@ BookingRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
       {
         isDeleted: true,
         deletedAt: new Date(),
-        deletedBy: deletedBy || "Unknown",
+        deletedBy: req.user._id,
       },
       { new: true }
     );
@@ -324,7 +322,8 @@ BookingRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
 
 // to fetch from the trash
 BookingRoutes.get("/trash", authenticateUser, async (req, res) => {
-  const userRole = req.headers["user-role"];
+  // const userRole = req.headers["user-role"];
+  const userRole = req.user.user_role;
 
   if (!userRole || userRole !== "srdev") {
     return res.status(403).send({ message: "Only srdev can view trash." });
@@ -364,7 +363,8 @@ BookingRoutes.get("/trash", authenticateUser, async (req, res) => {
 // to restore
 BookingRoutes.patch("/restore/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
-  const userRole = req.headers["user-role"];
+  // const userRole = req.headers["user-role"];
+  const userRole = req.user.user_role;
 
   if (!userRole || userRole !== "srdev") {
     return res
@@ -420,7 +420,8 @@ BookingRoutes.delete(
   authenticateUser,
   async (req, res) => {
     const { id } = req.params;
-    const userRole = req.headers["user-role"];
+    // const userRole = req.headers["user-role"];
+    const userRole = req.user.user_role;
 
     if (userRole !== "srdev") {
       return res
@@ -567,8 +568,6 @@ BookingRoutes.get("/bookings/filter", authenticateUser, async (req, res) => {
     endDate,
     status,
     service,
-    userId,
-    userRole,
     bdmName,
     paymentmode,
     paymentStartDate,
@@ -622,14 +621,11 @@ BookingRoutes.get("/bookings/filter", authenticateUser, async (req, res) => {
     // Payment mode filter
     if (paymentmode) {
       const validPaymentModes = [
-        "Kotak Mahindra Bank",
-        "HDFC Bank",
-        "Razorpay",
-        "HDFC Gateway",
-        "CashFree Gateway",
-        "Phonepe Gateway",
-        "Enego Projects",
+        "KOTAK MAHINDRA BANK",
+        "RAZORPAY",
+        "PayU",
         "Cash",
+        "Cheque",
       ];
       if (!validPaymentModes.includes(paymentmode)) {
         return res.status(400).send({ message: "Invalid payment mode" });

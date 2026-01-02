@@ -63,6 +63,8 @@ export const authenticateUser = async (req, res, next) => {
     req.user = {
       _id: decoded.userId,
       user_role: decoded.user_role,
+      name: decoded.userName,
+      email: decoded.email,
     };
     // console.log("req user", req.user);
     next();

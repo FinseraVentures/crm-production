@@ -71,10 +71,13 @@ const ServiceRoutes = express.Router();
  *         description: Server error
  */
 // Route to add a new service
-ServiceRoutes.post("/services", async (req, res) => {
+ServiceRoutes.post("/create-service", async (req, res) => {
+  const user = req.user;
   // console.log(req.body)
-  const { label, value, status } = req.body;
+  const { label, value, status, category, processingTime, serviceType } =
+    req.body;
 
+  console.log(req.body);
   // Validate input
   if (!label || !value || !status) {
     return res.status(400).send("Invalid input data");
@@ -83,13 +86,16 @@ ServiceRoutes.post("/services", async (req, res) => {
   // Create and save the service
   const service = {
     label,
+    category,
+    processingTime,
+    serviceType,
     value,
     status,
   };
 
   try {
-    const Service = await Service.create(service);
-    res.status(201).send({ message: "Service added successfully", Service });
+    const newService = await Service.create(service);
+    res.status(201).send({ message: "Service added successfully", newService });
   } catch (error) {
     res
       .status(500)
@@ -132,7 +138,7 @@ ServiceRoutes.post("/services", async (req, res) => {
  */
 //edit service
 ServiceRoutes.patch(
-  "/services/:id",
+  "/edit/:id",
   authenticateUser,
   authorizeDevRole,
   async (req, res) => {
@@ -156,12 +162,10 @@ ServiceRoutes.patch(
         return res.status(404).send({ message: "Service not found" });
       }
 
-      res
-        .status(200)
-        .send({
-          message: "Service updated successfully",
-          service: updatedService,
-        });
+      res.status(200).send({
+        message: "Service updated successfully",
+        service: updatedService,
+      });
     } catch (error) {
       res
         .status(500)
@@ -229,7 +233,7 @@ ServiceRoutes.get("/services", authenticateUser, async (req, res) => {
  */
 
 ServiceRoutes.delete(
-  "/services/:id",
+  "/delete/:id",
   authenticateUser,
   authorizeDevRole,
   async (req, res) => {
@@ -243,12 +247,10 @@ ServiceRoutes.delete(
         return res.status(404).send({ message: "Service not found" });
       }
 
-      res
-        .status(200)
-        .send({
-          message: "Service deleted successfully",
-          service: deletedService,
-        });
+      res.status(200).send({
+        message: "Service deleted successfully",
+        service: deletedService,
+      });
     } catch (error) {
       res
         .status(500)

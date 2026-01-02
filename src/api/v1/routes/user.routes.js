@@ -10,6 +10,7 @@ import {
   authenticateUser,
   authorizeDevRole,
 } from "#middlewares/authMiddleware.js";
+import e from "express";
 dotenv.config();
 const saltRounds = 5;
 
@@ -277,10 +278,15 @@ UserRoutes.get("/all", authenticateUser, authorizeDevRole, async (req, res) => {
 // Assuming you already have the user object after login
 export const generateToken = (user) => {
   return jwt.sign(
-    { userId: user._id, user_role: user.user_role },
+    {
+      userId: user._id,
+      user_role: user.user_role,
+      userName: user.name,
+      email: user.email,
+    },
     process.env.JWT_SECRET,
     {
-      expiresIn: "24h", // Set token expiration time
+      expiresIn: "12h", // Set token expiration time
     }
   );
 };
