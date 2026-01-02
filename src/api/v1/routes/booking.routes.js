@@ -198,11 +198,12 @@ BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
 
   try {
     const oldBooking = await Booking.findById(id);
+
     if (!oldBooking) {
       return res.status(404).send("Booking not found");
     }
 
-    const rolesWithFullAccess = ["dev", "senior admin", "srdev"];
+    const rolesWithFullAccess = ["dev", "senior admin", "srdev", "hr"];
 
     if (user_role === "admin") {
       const { services, ...allowedUpdates } = updates;

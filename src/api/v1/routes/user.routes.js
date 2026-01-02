@@ -70,6 +70,7 @@ UserRoutes.post(
 
       // Convert email to lowercase
       const normalizedEmail = email.toLowerCase();
+      const normalizedRole = user_role.toLowerCase();
 
       // Check if the email is already registered
       const existingUser = await User.findOne({ email: normalizedEmail });
@@ -85,7 +86,7 @@ UserRoutes.post(
         name,
         email: normalizedEmail,
         password: hashedPassword,
-        user_role,
+        user_role: normalizedRole,
       };
 
       const user = await User.create(new_user);
@@ -152,7 +153,9 @@ UserRoutes.patch(
           .status(400)
           .send({ message: "No fields provided for update" });
       }
-
+      if (updates.user_role) {
+        updates.user_role = updates.user_role.toLowerCase();
+      }
       // Normalize email if it's being updated
       if (updates.email) {
         updates.email = updates.email.toLowerCase();
