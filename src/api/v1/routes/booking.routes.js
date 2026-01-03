@@ -1,6 +1,7 @@
 import express from "express";
 import Booking from "#models/Booking.model.js";
 import { authenticateUser } from "#middlewares/authMiddleware.js";
+import { normalizeDateOnly } from "#utils/date.js";
 
 const BookingRoutes = express.Router();
 
@@ -121,11 +122,11 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
       term_1,
       term_2,
       term_3,
-      payment_date, // 👈 Set here
+      payment_date: normalizeDateOnly(payment_date),
       pan,
       gst: gst || "N/A",
       remark,
-      date: Date.now(),
+      date: new Date(),
       status,
       bank,
       state,
@@ -182,6 +183,9 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
 BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
   let updates = req.body;
+  if (updates.payment_date) {
+    updates.payment_date = normalizeDateOnly(updates.payment_date);
+  }
 
   const user_role = req.headers["user-role"] || req.user.user_role;
   if (!user_role) {
