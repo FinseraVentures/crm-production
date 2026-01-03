@@ -14,17 +14,25 @@ router.get("/", (req, res) => {
 });
 
 router.get("/dashboard", authenticateUser, async (req, res) => {
-  const userId = req.user.id;
-  const userRole = req.user.role;
+  const userId = req.user._id;
+  const userRole = req.user.user_role;
+  console.log(userRole);
 
   try {
     if (userRole === "bdm") {
-      const bookingsCount = await Booking.countDocuments({ user: userId });
-      const recentBookings = await Booking.find({ user: userId })
+      const bookingsCount = await Booking.countDocuments({
+        $or: [{ user: userId }, { user_id: userId }],
+      });
+
+      const recentBookings = await Booking.find({
+        $or: [{ user: userId }, { user_id: userId }],
+      })
         .populate("user", "name email user_role")
         .sort({ createdAt: -1 })
         .limit(5);
-      const bookings = await Booking.find({ user: userId });
+      const bookings = await Booking.find({
+        $or: [{ user: userId }, { user_id: userId }],
+      });
       const startOfToday = new Date();
       startOfToday.setHours(0, 0, 0, 0);
 
@@ -170,12 +178,14 @@ router.get("/dashboard", authenticateUser, async (req, res) => {
         .limit(5);
       const usersCount = await User.countDocuments();
       res.status(200).json({
-        bookings,
-        currentMonthlyRevenue,
-        todayRevenue,
-        totalBookings: bookingsCount,
-        totalUsers: usersCount,
-        recentBookings,
+        data: {
+          bookings,
+          currentMonthlyRevenue,
+          todayRevenue,
+          totalBookings: bookingsCount,
+          totalUsers: usersCount,
+          recentBookings,
+        },
       });
     }
   } catch (error) {
