@@ -21,9 +21,10 @@ router.get("/dashboard", authenticateUser, async (req, res) => {
     if (userRole === "bdm") {
       const bookingsCount = await Booking.countDocuments({ user: userId });
       const recentBookings = await Booking.find({ user: userId })
+        .populate("user", "name email user_role")
         .sort({ createdAt: -1 })
         .limit(5);
-
+      const bookings = await Booking.find({ user: userId });
       const startOfToday = new Date();
       startOfToday.setHours(0, 0, 0, 0);
 
@@ -91,11 +92,12 @@ router.get("/dashboard", authenticateUser, async (req, res) => {
       const usersCount = await User.countDocuments();
       return res.status(200).json({
         data: {
+          bookings,
+          currentMonthlyRevenue,
+          todayRevenue,
           totalBookings: bookingsCount,
           totalUsers: usersCount,
           recentBookings,
-          currentMonthlyRevenue,
-          todayRevenue,
         },
       });
     } else {
@@ -163,6 +165,7 @@ router.get("/dashboard", authenticateUser, async (req, res) => {
       ]);
 
       const recentBookings = await Booking.find()
+        .populate("user", "name email user_role")
         .sort({ createdAt: -1 })
         .limit(5);
       const usersCount = await User.countDocuments();
