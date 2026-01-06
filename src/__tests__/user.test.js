@@ -11,8 +11,6 @@ afterAll(async () => {
   await closeTestDB();
 });
 
-
-
 jest.mock("#middlewares/authMiddleware.js", () => ({
   __esModule: true,
 
@@ -22,17 +20,13 @@ jest.mock("#middlewares/authMiddleware.js", () => ({
       user_role: "srdev", // required for authorizeDevRole
     };
 
- 
     next();
   },
 
   authorizeDevRole: (req, res, next) => next(),
 }));
 
-
 describe("User API", () => {
-
-
   it("should create a new user", async () => {
     const res = await request(app).post("/api/v1/user/adduser").send({
       name: "Test User",
@@ -41,10 +35,7 @@ describe("User API", () => {
       user_role: "admin",
     });
 
-    console.log(res);
-
     expect(res.statusCode).toBe(201);
     expect(res.body.email).toBe("test@example.com");
   });
 });
-    

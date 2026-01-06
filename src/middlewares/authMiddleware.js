@@ -42,7 +42,6 @@ import User from "../models/User.model.js";
 
 // Middleware to check if the user is a 'dev'
 export const authorizeDevRole = (req, res, next) => {
-  console.log("User role:", req.user?.user_role);
   if (process.env.NODE_ENV === "test") return next();
   if (req.user?.user_role !== "srdev") {
     return res
@@ -66,7 +65,7 @@ export const authenticateUser = async (req, res, next) => {
       name: decoded.userName,
       email: decoded.email,
     };
-    // console.log("req user", req.user);
+
     next();
   } catch {
     return res.status(401).json({ message: "Invalid or expired token" });

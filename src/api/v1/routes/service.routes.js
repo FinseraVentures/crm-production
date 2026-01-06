@@ -73,11 +73,10 @@ const ServiceRoutes = express.Router();
 // Route to add a new service
 ServiceRoutes.post("/create-service", async (req, res) => {
   const user = req.user;
-  // console.log(req.body)
+
   const { label, value, status, category, processingTime, serviceType } =
     req.body;
 
-  console.log(req.body);
   // Validate input
   if (!label || !value || !status) {
     return res.status(400).send("Invalid input data");

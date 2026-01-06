@@ -267,7 +267,7 @@ UserRoutes.get("/all", authenticateUser, authorizeDevRole, async (req, res) => {
       });
     }
     const no_of_users = Users.length;
-    // console.log(no_of_users);
+
     res.status(200).send({ Users });
   } catch (error) {
     console.log(error.message);
@@ -404,7 +404,7 @@ UserRoutes.get("/bookings/:id", authenticateUser, async (req, res) => {
       });
     }
     const Bookings = await Booking.find({ user_id: id });
-    //  console.log(Bookings)
+
     if (Bookings.length === 0) {
       return res.status(404).send({
         message: "No bookings found for this user",
@@ -423,7 +423,7 @@ UserRoutes.get("/:id?", authenticateUser, async (req, res) => {
   const searchPattern = req.query.pattern; // Search pattern from the query parameter
   const userRole = req.query.userRole; // Assuming user's role is stored in req.user
   const userId = req.query.userId; // Assuming user's ID is stored in req.user
-  // console.log(userRole,userId);
+
   let contactNo = parseInt(searchPattern);
 
   try {
@@ -503,7 +503,7 @@ UserRoutes.get("/:id", async (req, res) => {
       });
     }
     const User = await User.find({ _id: id });
-    //  console.log(Bookings)
+
     if (User.length === 0) {
       return res.status(404).send({
         message: "No User found with this id",
@@ -610,7 +610,6 @@ UserRoutes.post("/request-reset-password", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // console.log(user);
 
     // Generate a reset token
     const resetToken = crypto.randomBytes(20).toString("hex");

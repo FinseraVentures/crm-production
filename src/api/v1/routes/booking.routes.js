@@ -292,9 +292,6 @@ BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
 //trash
 BookingRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
-  // const userRole = req.headers["user-role"];
-  // const deletedBy = req.headers["user-name"];
-  console.log("req.user", req.user);
   const userRole = req.user.user_role;
   const deletedBy = req.user.name;
   if (!userRole || !["srdev", "dev", "senior admin"].includes(userRole)) {

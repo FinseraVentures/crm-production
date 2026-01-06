@@ -16,7 +16,6 @@ router.get("/", (req, res) => {
 router.get("/dashboard", authenticateUser, async (req, res) => {
   const userId = req.user._id;
   const userRole = req.user.user_role;
-  console.log(userRole);
 
   try {
     if (userRole === "bdm") {

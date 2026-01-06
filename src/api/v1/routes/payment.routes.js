@@ -104,7 +104,7 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
       amount: Math.round(amount * 100),
       currency: "INR",
       accept_partial: false,
-      description: description || "UPI Payment",
+      description: name || "UPI Payment",
       customer: {
         name: name || "Customer",
         email,
@@ -122,7 +122,7 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
       await appendToGoogleSheet({
         type: "LINK",
         timestamp: new Date().toISOString(),
-        description, // or real company name field
+        description: name, // or real company name field
         email,
         phone,
         bdm: userName,
@@ -481,6 +481,7 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
       success: true,
       message: "QR Code created",
       qr_id: qr.id,
+      qr_image: qr.image_url,
       qr_data: qr,
       qr_base64: base64QR ? `data:image/png;base64,${base64QR}` : null,
       savedRecord: savedQR, // may be null if DB save failed

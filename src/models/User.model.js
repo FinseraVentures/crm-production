@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-// console.log("User model loaded");
-
 const userSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
