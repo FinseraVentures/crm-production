@@ -71,7 +71,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
     term_1,
     term_2,
     term_3,
-    payment_date, // 👈 New
+    payment_date,
     closed_by,
     pan,
     gst,
@@ -127,7 +127,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
       pan,
       gst: gst || "N/A",
       remark,
-      date: new Date(),
+      date: new Date(date),
       status,
       bank,
       state,
