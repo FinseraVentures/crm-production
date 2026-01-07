@@ -91,8 +91,6 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
       userName,
     } = req.body;
 
-    // console.log(req.body);
-
     if (!amount || !email || !phone) {
       return res
         .status(400)
@@ -379,7 +377,6 @@ PaymentRoutes.get("/payment-links/:id", authenticateUser, async (req, res) => {
  */
 PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
   const ownerUserId = req.user._id;
-  // console.log(ownerUserId);
 
   try {
     const {
@@ -393,8 +390,6 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
       close_by_hours,
       userName,
     } = req.body;
-
-    // console.log(req.body);
 
     if (!amount || !name) {
       return res

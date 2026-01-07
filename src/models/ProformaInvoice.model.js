@@ -103,7 +103,4 @@ const ProformaInvoiceSchema = new mongoose.Schema(
 
 applyBase(ProformaInvoiceSchema);
 
-export default mongoose.model(
-  "ProformaInvoice",
-  ProformaInvoiceSchema
-);
+export default mongoose.model("ProformaInvoice", ProformaInvoiceSchema);

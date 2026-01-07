@@ -1,11 +1,11 @@
 import express from "express";
 import ProformaInvoice from "#models/ProformaInvoice.model.js";
+import { authenticateUser } from "#middlewares/authMiddleware.js";
 
 const ProformaRoutes = express.Router();
 
 // Create Proforma
 ProformaRoutes.post("/create", async (req, res) => {
-  // console.log(req.body)
   try {
     const p = new ProformaInvoice(req.body);
     await p.save();
@@ -16,12 +16,34 @@ ProformaRoutes.post("/create", async (req, res) => {
 });
 
 // Get all
-ProformaRoutes.get("/view", async (req, res) => {
+ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
   try {
-    const list = await ProformaInvoice.find();
-    res.json(list);
+    const filter = {};
+    const elevatedRoles = ["admin", "senior admin", "dev", "srdev"];
+
+    if (!elevatedRoles.includes(req.user.user_role)) {
+      filter.user = req.user._id;
+    } else {
+      filter.user = { $ne: null };
+    }
+
+    // ⛑️ HARD SAFETY: ignore broken user refs
+    filter.user = { $ne: null };
+
+    const list = await ProformaInvoice.find(filter)
+      .populate("user", "_id name email")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: list.length,
+      data: list,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 

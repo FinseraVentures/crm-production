@@ -4,7 +4,7 @@ import applyBase from "./Base.model.js";
 const bookingSchema = mongoose.Schema(
   {
     // user_id: { type: String, required: true },
-    // bdmName:{type:String,required:true},
+    bdmName: { type: String, required: true },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

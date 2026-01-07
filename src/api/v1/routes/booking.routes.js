@@ -111,6 +111,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
   try {
     const new_booking = {
       user: ownerUserId,
+      bdm: req.user.name,
       branch_name,
       company_name: company_name || "",
       contact_person,
@@ -122,7 +123,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
       term_1,
       term_2,
       term_3,
-      payment_date: normalizeDateOnly(payment_date),
+      payment_date: payment_date,
       pan,
       gst: gst || "N/A",
       remark,
@@ -512,9 +513,11 @@ BookingRoutes.get("/getbooking/:id", authenticateUser, async (req, res) => {
 //Getting all bookings
 BookingRoutes.get("/all", authenticateUser, async (req, res) => {
   try {
-    const Allbookings = await Booking.find({ isDeleted: false }).sort({
-      createdAt: -1,
-    });
+    const Allbookings = await Booking.find({ isDeleted: false })
+      .populate("user", "_id name email")
+      .sort({
+        createdAt: -1,
+      });
 
     if (!Allbookings.length) {
       return res
