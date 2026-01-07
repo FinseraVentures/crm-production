@@ -111,7 +111,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
   try {
     const new_booking = {
       user: ownerUserId,
-      bdm: req.user.name,
+      bdmName: req.user.name,
       branch_name,
       company_name: company_name || "",
       contact_person,
