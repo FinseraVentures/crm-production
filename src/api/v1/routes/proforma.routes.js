@@ -27,9 +27,6 @@ ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
       filter.user = { $ne: null };
     }
 
-    // ⛑️ HARD SAFETY: ignore broken user refs
-    filter.user = { $ne: null };
-
     const list = await ProformaInvoice.find(filter)
       .populate("user", "_id name email")
       .sort({ createdAt: -1 });
@@ -37,7 +34,7 @@ ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
     res.json({
       success: true,
       count: list.length,
-      data: list,
+      list,
     });
   } catch (err) {
     res.status(500).json({
