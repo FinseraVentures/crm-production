@@ -25,7 +25,7 @@ export const startKeepAliveCron = () => {
   }
 
   cron.schedule(
-    "*/8 * * * *",
+    "*/13 * * * *",
     async () => {
       try {
         const controller = new AbortController();

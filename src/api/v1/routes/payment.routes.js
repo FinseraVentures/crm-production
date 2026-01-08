@@ -180,7 +180,7 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
 PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
   try {
     const filter = {};
-    const elevatedRoles = ["admin", "senior admin", "dev", "srdev"];
+    const elevatedRoles = ["dev", "srdev", "hr"];
 
     if (!elevatedRoles.includes(req.user.user_role)) {
       filter.user = req.user._id;
@@ -493,7 +493,7 @@ PaymentRoutes.get("/qr-codes", authenticateUser, async (req, res) => {
   try {
     const filter = {};
 
-    const elevatedRoles = ["admin", "senior admin", "dev", "srdev"];
+    const elevatedRoles = ["hr", "dev", "srdev"];
 
     //  Restrict non-elevated users to their own QR codes
     if (!elevatedRoles.includes(req.user.user_role)) {

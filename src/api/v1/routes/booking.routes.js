@@ -91,7 +91,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
     total_amount,
     pan,
     state,
-    date,
+    // date,
   };
 
   const missingFields = Object.entries(requiredFields)
@@ -127,7 +127,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
       pan,
       gst: gst || "N/A",
       remark,
-      date: new Date(date),
+      // date: new Date(date),
       status,
       bank,
       state,
