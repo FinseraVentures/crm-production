@@ -127,7 +127,6 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
       pan,
       gst: gst || "N/A",
       remark,
-      // date: new Date(date),
       status,
       bank,
       state,
@@ -707,9 +706,13 @@ BookingRoutes.get(
 
     try {
       // Fetch bookings of this specific user
+      // const userBookings = await Booking.find({
+      //   user_id: userId, // or use `userId` field based on your schema
+      //   isDeleted: false,
+      // }).sort({ createdAt: -1 });
       const userBookings = await Booking.find({
-        user_id: userId, // or use `userId` field based on your schema
         isDeleted: false,
+        $or: [{ user: userId }, { user_id: userId }],
       }).sort({ createdAt: -1 });
 
       if (!userBookings.length) {
