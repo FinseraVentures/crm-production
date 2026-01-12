@@ -23,8 +23,6 @@ ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
 
     if (!elevatedRoles.includes(req.user.user_role)) {
       filter.user = req.user._id;
-    } else {
-      filter.user = { $ne: null };
     }
 
     const list = await ProformaInvoice.find(filter)
