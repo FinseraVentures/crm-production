@@ -14,6 +14,7 @@ const addContext = format((info) => {
     info.role = store.role;
     info.email = store.email;
     info.requestId = store.requestId;
+    info.name = store.name;
   }
 
   return info;
@@ -36,14 +37,25 @@ if (config.logging.toConsole) {
         format.colorize(),
         baseFormat,
         format.printf(
-          ({ timestamp, level, message, stack, userId, role, requestId }) => {
+          ({
+            timestamp,
+            level,
+            message,
+            email,
+            stack,
+            userId,
+            name,
+            requestId,
+          }) => {
             const meta = requestId
-              ? ` [req:${requestId}] [user:${userId || "anon"}|${role}]`
+              ? ` [req:${requestId}] [user:${
+                  email || "anon"
+                }|${userId} [name:${name}]]`
               : "";
 
             return stack
-              ? `[${timestamp}] ${level}${meta} ${stack}`
-              : `[${timestamp}] ${level}${meta} ${message}`;
+              ? `${level}${meta} ${stack}`
+              : `${level}${meta} ${message}`;
           }
         )
       ),
