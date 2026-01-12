@@ -17,9 +17,9 @@ import { contextMiddleware } from "#middlewares/context.middleware.js";
 
 const router = Router();
 router.use("/health", healthRoutes);
+router.use("/user", userRoutes);
 router.use(authenticateUser);
 router.use(contextMiddleware);
-router.use("/user", userRoutes);
 router.use("/booking", bookingRoutes);
 router.use("/services", serviceRoutes);
 router.use("/employee", employeeRoutes);
