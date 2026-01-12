@@ -40,6 +40,15 @@ router.get("/", (req, res) => {
 router.get("/dashboard", authenticateUser, async (req, res) => {
   const userId = req.user._id;
   const userRole = req.user.user_role;
+  const getTodayRange = () => {
+    const start = new Date();
+    start.setUTCHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setUTCHours(23, 59, 59, 999);
+
+    return { start, end };
+  };
 
   try {
     const todayStr = formatDate(new Date());
@@ -59,12 +68,16 @@ router.get("/dashboard", authenticateUser, async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(5);
 
+      const { start: todayStart, end: todayEnd } = getTodayRange();
+
       const todayRevenue = await Booking.aggregate([
         {
           $match: {
-            ...bookingsFilter,
             isDeleted: false,
-            payment_date: todayStr,
+            payment_date: {
+              $gte: todayStart,
+              $lte: todayEnd,
+            },
           },
         },
         {
