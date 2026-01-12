@@ -1,5 +1,6 @@
+// src/middlewares/context.middleware.js
 import crypto from "crypto";
-import { requestContext } from "../middlewares/requestContext";
+import { requestContext } from "./requestContext.js";
 
 export const contextMiddleware = (req, res, next) => {
   requestContext.run(
