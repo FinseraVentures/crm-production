@@ -1,61 +1,177 @@
 import express from "express";
 import TaxInvoice from "#models/TaxInvoice.model.js";
+import { authenticateUser } from "#middlewares/authMiddleware.js";
 
 const TaxInvoiceRoutes = express.Router();
+const PRIVILEGED_ROLES = ["admin", "dev", "srdev", "hr"];
 
-// Create TaxInvoice
-TaxInvoiceRoutes.post("/create", async (req, res) => {
+TaxInvoiceRoutes.post("/create", authenticateUser, async (req, res) => {
   try {
-    const inv = new TaxInvoice(req.body);
-    await inv.save();
-    res.status(201).json(inv);
+    // Whitelist allowed fields only
+    const {
+      invoiceNumber,
+      invoiceDate,
+      clientDetails,
+      items,
+      subtotal,
+      gst,
+      total,
+      proformaInvoice, // relation if any
+    } = req.body;
+
+    const invoice = new TaxInvoice({
+      invoiceNumber,
+      invoiceDate,
+      clientDetails,
+      items,
+      subtotal,
+      gst,
+      total,
+      proformaInvoice,
+      user: req.user._id, // ✅ enforce ownership
+      createdByRole: req.user.user_role, // optional but useful
+    });
+
+    await invoice.save();
+
+    res.status(201).json({
+      success: true,
+      data: invoice,
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("TaxInvoice create error:", err);
+    res.status(400).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
-// Get all
-TaxInvoiceRoutes.get("/view", async (req, res) => {
+TaxInvoiceRoutes.get("/view", authenticateUser, async (req, res) => {
   try {
-    const list = await TaxInvoice.find();
-    res.json(list);
+    const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
+
+    const query = isPrivileged ? {} : { user: req.user._id };
+
+    const invoices = await TaxInvoice.find(query).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: invoices,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("TaxInvoice list error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
 // Get by id
-TaxInvoiceRoutes.get("/:id", async (req, res) => {
+TaxInvoiceRoutes.get("/:id", authenticateUser, async (req, res) => {
   try {
-    const inv = await TaxInvoice.findById(req.params.id);
-    if (!inv) return res.status(404).json({ error: "TaxInvoice not found" });
-    res.json(inv);
+    const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
+
+    const query = isPrivileged
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: req.user._id };
+
+    const invoice = await TaxInvoice.findOne(query);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        error: "Tax invoice not found or access denied",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: invoice,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("TaxInvoice fetch error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
 // Update
-TaxInvoiceRoutes.put("/:id", async (req, res) => {
+TaxInvoiceRoutes.put("/:id", authenticateUser, async (req, res) => {
   try {
-    const inv = await TaxInvoice.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
+
+    const query = isPrivileged
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: req.user._id };
+
+    const invoice = await TaxInvoice.findOne(query);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        error: "Tax invoice not found or access denied",
+      });
+    }
+
+    // 🔒 Whitelist fields
+    const { invoiceDate, clientDetails, items, subtotal, gst, total, status } =
+      req.body;
+
+    invoice.invoiceDate = invoiceDate;
+    invoice.clientDetails = clientDetails;
+    invoice.items = items;
+    invoice.subtotal = subtotal;
+    invoice.gst = gst;
+    invoice.total = total;
+    invoice.status = status;
+
+    await invoice.save();
+
+    res.json({
+      success: true,
+      data: invoice,
     });
-    if (!inv) return res.status(404).json({ error: "TaxInvoice not found" });
-    res.json(inv);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("TaxInvoice update error:", err);
+    res.status(400).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
 // Delete
-TaxInvoiceRoutes.delete("/:id", async (req, res) => {
+TaxInvoiceRoutes.delete("/:id", authenticateUser, async (req, res) => {
   try {
-    const inv = await TaxInvoice.findByIdAndDelete(req.params.id);
-    if (!inv) return res.status(404).json({ error: "TaxInvoice not found" });
-    res.json({ message: "TaxInvoice deleted" });
+    const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
+
+    const query = isPrivileged
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: req.user._id };
+
+    const deleted = await TaxInvoice.findOneAndDelete(query);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        error: "Tax invoice not found or access denied",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Tax invoice deleted successfully",
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("TaxInvoice delete error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 

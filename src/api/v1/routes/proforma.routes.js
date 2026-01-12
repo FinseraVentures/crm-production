@@ -5,13 +5,25 @@ import { authenticateUser } from "#middlewares/authMiddleware.js";
 const ProformaRoutes = express.Router();
 
 // Create Proforma
-ProformaRoutes.post("/create", async (req, res) => {
+ProformaRoutes.post("/create", authenticateUser, async (req, res) => {
   try {
-    const p = new ProformaInvoice(req.body);
-    await p.save();
-    res.status(201).json(p);
+    const invoice = new ProformaInvoice({
+      ...req.body,
+      user: req.user._id, // ✅ enforce owner
+    });
+
+    await invoice.save();
+
+    res.status(201).json({
+      success: true,
+      data: invoice,
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("Proforma create error:", err);
+    res.status(400).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
@@ -43,39 +55,117 @@ ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
 });
 
 // Get by id
-ProformaRoutes.get("/:id", async (req, res) => {
+ProformaRoutes.get("/:id", authenticateUser, async (req, res) => {
   try {
-    const p = await ProformaInvoice.findById(req.params.id).populate(
-      "taxInvoice"
+    const isPrivileged = ["admin", "dev", "srdev", "hr"].includes(
+      req.user.user_role
     );
-    if (!p) return res.status(404).json({ error: "ProformaInvoice not found" });
-    res.json(p);
+
+    const query = isPrivileged
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: req.user._id };
+
+    const invoice = await ProformaInvoice.findOne(query).populate("taxInvoice");
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        error: "Proforma invoice not found or access denied",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: invoice,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Proforma fetch error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
 // Update
-ProformaRoutes.put("/:id", async (req, res) => {
+ProformaRoutes.put("/:id", authenticateUser, async (req, res) => {
   try {
-    const p = await ProformaInvoice.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    const invoice = await ProformaInvoice.findOne({
+      _id: req.params.id,
+      user: req.user._id, // ✅ ownership enforced
     });
-    if (!p) return res.status(404).json({ error: "ProformaInvoice not found" });
-    res.json(p);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        error: "Proforma invoice not found or access denied",
+      });
+    }
+
+    // ✅ Whitelist fields (VERY IMPORTANT)
+    const {
+      invoiceDate,
+      clientDetails,
+      items,
+      includeGST,
+      subtotal,
+      gst,
+      total,
+    } = req.body;
+
+    invoice.invoiceDate = invoiceDate;
+    invoice.clientDetails = clientDetails;
+    invoice.items = items;
+    invoice.includeGST = includeGST;
+    invoice.subtotal = subtotal;
+    invoice.gst = gst;
+    invoice.total = total;
+
+    await invoice.save();
+
+    res.json({
+      success: true,
+      data: invoice,
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("Proforma update error:", err);
+    res.status(400).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
 // Delete
-ProformaRoutes.delete("/:id", async (req, res) => {
+ProformaRoutes.delete("/:id", authenticateUser, async (req, res) => {
   try {
-    const p = await ProformaInvoice.findByIdAndDelete(req.params.id);
-    if (!p) return res.status(404).json({ error: "ProformaInvoice not found" });
-    res.json({ message: "ProformaInvoice deleted" });
+    const isPrivileged = ["admin", "dev", "srdev", "hr"].includes(
+      req.user.user_role
+    );
+
+    const query = isPrivileged
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: req.user._id };
+
+    const deleted = await ProformaInvoice.findOneAndDelete(query);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        error: "Proforma invoice not found or access denied",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Proforma invoice deleted successfully",
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Proforma delete error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 
