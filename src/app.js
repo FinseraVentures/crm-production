@@ -4,6 +4,8 @@ import morganMiddleware from "#middlewares/logger.js";
 import apiV1Routes from "./api/v1/routes/index.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "#config/swagger.js";
+import { authenticateUser } from "#middlewares/authMiddleware.js";
+import { contextMiddleware } from "#middlewares/context.middleware.js";
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(
 );
 
 app.use(morganMiddleware);
+app.use(authenticateUser);
+app.use(contextMiddleware);
 
 // Swagger
 if (process.env.NODE_ENV !== "production") {
