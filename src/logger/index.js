@@ -1,7 +1,7 @@
 import winston from "winston";
 import "winston-daily-rotate-file";
 import config from "../config/config.js";
-import { requestContext } from "../middleware/requestContext.js";
+import { requestContext } from "../middlewares/requestContext.js";
 
 const { createLogger, format, transports } = winston;
 
