@@ -1,10 +1,26 @@
 import winston from "winston";
 import "winston-daily-rotate-file";
 import config from "../config/config.js";
+import { requestContext } from "../middleware/requestContext.js";
 
 const { createLogger, format, transports } = winston;
 
+// 🔹 Inject request/user context into every log
+const addContext = format((info) => {
+  const store = requestContext.getStore();
+
+  if (store) {
+    info.userId = store.userId;
+    info.role = store.role;
+    info.email = store.email;
+    info.requestId = store.requestId;
+  }
+
+  return info;
+});
+
 const baseFormat = format.combine(
+  addContext(),
   format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   format.errors({ stack: true }),
   format.splat()
@@ -19,11 +35,17 @@ if (config.logging.toConsole) {
       format: format.combine(
         format.colorize(),
         baseFormat,
-        format.printf(({ timestamp, level, message, stack }) => {
-          return stack
-            ? `[${timestamp}] ${level}: ${stack}`
-            : `[${timestamp}] ${level}: ${message}`;
-        })
+        format.printf(
+          ({ timestamp, level, message, stack, userId, role, requestId }) => {
+            const meta = requestId
+              ? ` [req:${requestId}] [user:${userId || "anon"}|${role}]`
+              : "";
+
+            return stack
+              ? `[${timestamp}] ${level}${meta} ${stack}`
+              : `[${timestamp}] ${level}${meta} ${message}`;
+          }
+        )
       ),
     })
   );
