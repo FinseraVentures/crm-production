@@ -48,9 +48,7 @@ if (config.logging.toConsole) {
             requestId,
           }) => {
             const meta = requestId
-              ? ` [req:${requestId}] [user:${
-                  email || "anon"
-                }|${userId} [name:${name}]]`
+              ? `[user:${email || "anon"}|[name:${name}]]`
               : "";
 
             return stack
