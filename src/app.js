@@ -20,8 +20,8 @@ app.use(
 );
 
 app.use(morganMiddleware);
-app.use(authenticateUser);
-app.use(contextMiddleware);
+// app.use(authenticateUser);
+// app.use(contextMiddleware);
 
 // Swagger
 if (process.env.NODE_ENV !== "production") {

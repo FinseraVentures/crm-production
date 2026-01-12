@@ -12,14 +12,17 @@ import paymentRoutes from "./payment.routes.js";
 import emailRoutes from "./email.routes.js";
 import welcomeRoutes from "./welcome.routes.js";
 import healthRoutes from "./health.routes.js";
+import { authenticateUser } from "#middlewares/authMiddleware.js";
+import { contextMiddleware } from "#middlewares/context.middleware.js";
 
 const router = Router();
-
+router.use("/health", healthRoutes);
+router.use(authenticateUser);
+router.use(contextMiddleware);
 router.use("/user", userRoutes);
 router.use("/booking", bookingRoutes);
 router.use("/services", serviceRoutes);
 router.use("/employee", employeeRoutes);
-// router.use("/invoice", invoiceRoutes);
 router.use("/taxinvoice", taxInvoiceRoutes);
 router.use("/proforma", proformaRoutes);
 router.use("/leads", leadRoutes);
@@ -27,6 +30,5 @@ router.use("/admin", adminRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/email", emailRoutes);
 router.use("/mail", welcomeRoutes);
-router.use("/health", healthRoutes);
 
 export default router;
