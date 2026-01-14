@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import e from "express";
 import { authenticateUser } from "#middlewares/authMiddleware.js";
+import { contextMiddleware } from "#middlewares/context.middleware.js";
 dotenv.config();
 const saltRounds = 5;
 
@@ -55,6 +56,7 @@ const UserRoutes = express.Router();
 UserRoutes.post(
   "/adduser",
   authenticateUser,
+  contextMiddleware,
 
   async (req, res) => {
     try {
@@ -139,6 +141,7 @@ UserRoutes.post(
 UserRoutes.patch(
   "/edituser/:id",
   authenticateUser,
+  contextMiddleware,
 
   async (req, res) => {
     try {
@@ -219,6 +222,7 @@ UserRoutes.patch(
 UserRoutes.delete(
   "/deleteuser/:id",
   authenticateUser,
+  contextMiddleware,
 
   async (req, res) => {
     try {
@@ -255,22 +259,27 @@ UserRoutes.delete(
  */
 
 //listing all users
-UserRoutes.get("/all", authenticateUser, async (req, res) => {
-  try {
-    const Users = await User.find({}).select("-password");
-    if (Users.length === 0) {
-      return res.status(404).send({
-        message: "No Users found",
-      });
-    }
-    const no_of_users = Users.length;
+UserRoutes.get(
+  "/all",
+  authenticateUser,
+  contextMiddleware,
+  async (req, res) => {
+    try {
+      const Users = await User.find({}).select("-password");
+      if (Users.length === 0) {
+        return res.status(404).send({
+          message: "No Users found",
+        });
+      }
+      const no_of_users = Users.length;
 
-    res.status(200).send({ Users });
-  } catch (error) {
-    console.log(error.message);
-    return res.status(500).send({ message: error.message });
+      res.status(200).send({ Users });
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).send({ message: error.message });
+    }
   }
-});
+);
 
 // Assuming you already have the user object after login
 export const generateToken = (user) => {
