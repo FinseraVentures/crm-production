@@ -1,6 +1,6 @@
 import express from "express";
 import Service from "#models/Service.model.js";
-import { authorizeDevRole } from "#middlewares/authMiddleware.js";
+
 // import servicesList from '../data/ServiceList.js'; // Adjust the import path for your services list
 
 const ServiceRoutes = express.Router();
@@ -133,7 +133,7 @@ ServiceRoutes.post("/create-service", async (req, res) => {
  *         description: Server error
  */
 //edit service
-ServiceRoutes.patch("/edit/:id", authorizeDevRole, async (req, res) => {
+ServiceRoutes.patch("/edit/:id", async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
@@ -223,7 +223,7 @@ ServiceRoutes.get("/services", async (req, res) => {
  *         description: Server error
  */
 
-ServiceRoutes.delete("/delete/:id", authorizeDevRole, async (req, res) => {
+ServiceRoutes.delete("/delete/:id", async (req, res) => {
   const { id } = req.params;
 
   try {

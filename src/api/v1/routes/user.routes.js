@@ -6,8 +6,8 @@ import nodemailer from "nodemailer"; // Used to send emails
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { authorizeDevRole } from "#middlewares/authMiddleware.js";
 import e from "express";
+import { authenticateUser } from "#middlewares/authMiddleware.js";
 dotenv.config();
 const saltRounds = 5;
 
@@ -54,8 +54,8 @@ const UserRoutes = express.Router();
 //Creating User
 UserRoutes.post(
   "/adduser",
+  authenticateUser,
 
-  authorizeDevRole,
   async (req, res) => {
     try {
       const { name, email, password, user_role } = req.body;
@@ -138,8 +138,8 @@ UserRoutes.post(
 //edit user
 UserRoutes.patch(
   "/edituser/:id",
+  authenticateUser,
 
-  authorizeDevRole,
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -218,8 +218,8 @@ UserRoutes.patch(
 // Deleting User
 UserRoutes.delete(
   "/deleteuser/:id",
+  authenticateUser,
 
-  authorizeDevRole,
   async (req, res) => {
     try {
       const { id } = req.params; // Assuming you are using a unique ID for the user
@@ -255,7 +255,7 @@ UserRoutes.delete(
  */
 
 //listing all users
-UserRoutes.get("/all", authorizeDevRole, async (req, res) => {
+UserRoutes.get("/all", authenticateUser, async (req, res) => {
   try {
     const Users = await User.find({}).select("-password");
     if (Users.length === 0) {
