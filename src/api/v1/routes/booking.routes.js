@@ -1,6 +1,5 @@
 import express from "express";
 import Booking from "#models/Booking.model.js";
-import { authenticateUser } from "#middlewares/authMiddleware.js";
 import { normalizeDateOnly } from "#utils/date.js";
 
 const BookingRoutes = express.Router();
@@ -58,7 +57,7 @@ const BookingRoutes = express.Router();
  *         description: Unauthorized
  */
 //Addbooking
-BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
+BookingRoutes.post("/addbooking", async (req, res) => {
   const ownerUserId = req.user._id;
   const {
     branch_name,
@@ -180,7 +179,7 @@ BookingRoutes.post("/addbooking", authenticateUser, async (req, res) => {
  */
 
 //Edit booking
-BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
+BookingRoutes.patch("/editbooking/:id", async (req, res) => {
   const { id } = req.params;
   let updates = req.body;
   if (updates.payment_date) {
@@ -290,7 +289,7 @@ BookingRoutes.patch("/editbooking/:id", authenticateUser, async (req, res) => {
  */
 
 //trash
-BookingRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
+BookingRoutes.patch("/trash/:id", async (req, res) => {
   const { id } = req.params;
   const userRole = req.user.user_role;
   const deletedBy = req.user.name;
@@ -322,7 +321,7 @@ BookingRoutes.patch("/trash/:id", authenticateUser, async (req, res) => {
 });
 
 // to fetch from the trash
-BookingRoutes.get("/trash", authenticateUser, async (req, res) => {
+BookingRoutes.get("/trash", async (req, res) => {
   // const userRole = req.headers["user-role"];
   const userRole = req.user.user_role;
 
@@ -362,7 +361,7 @@ BookingRoutes.get("/trash", authenticateUser, async (req, res) => {
  */
 
 // to restore
-BookingRoutes.patch("/restore/:id", authenticateUser, async (req, res) => {
+BookingRoutes.patch("/restore/:id", async (req, res) => {
   const { id } = req.params;
   // const userRole = req.headers["user-role"];
   const userRole = req.user.user_role;
@@ -416,40 +415,36 @@ BookingRoutes.patch("/restore/:id", authenticateUser, async (req, res) => {
  */
 
 //Delete Booking
-BookingRoutes.delete(
-  "/deletebooking/:id",
-  authenticateUser,
-  async (req, res) => {
-    const { id } = req.params;
-    // const userRole = req.headers["user-role"];
-    const userRole = req.user.user_role;
+BookingRoutes.delete("/deletebooking/:id", async (req, res) => {
+  const { id } = req.params;
+  // const userRole = req.headers["user-role"];
+  const userRole = req.user.user_role;
 
-    if (userRole !== "srdev") {
-      return res
-        .status(403)
-        .send({ message: "Only srdev can permanently delete bookings." });
-    }
-
-    const booking = await Booking.findById(id);
-
-    if (!booking) {
-      return res.status(404).send({ message: "Booking not found" });
-    }
-
-    if (!booking.isDeleted) {
-      return res.status(400).send({
-        message: "You must move this booking to trash before deleting.",
-      });
-    }
-
-    try {
-      await Booking.findByIdAndDelete(id);
-      return res.status(200).send({ message: "Booking permanently deleted." });
-    } catch (err) {
-      return res.status(500).send({ message: err.message });
-    }
+  if (userRole !== "srdev") {
+    return res
+      .status(403)
+      .send({ message: "Only srdev can permanently delete bookings." });
   }
-);
+
+  const booking = await Booking.findById(id);
+
+  if (!booking) {
+    return res.status(404).send({ message: "Booking not found" });
+  }
+
+  if (!booking.isDeleted) {
+    return res.status(400).send({
+      message: "You must move this booking to trash before deleting.",
+    });
+  }
+
+  try {
+    await Booking.findByIdAndDelete(id);
+    return res.status(200).send({ message: "Booking permanently deleted." });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
+  }
+});
 
 /**
  * @swagger
@@ -473,7 +468,7 @@ BookingRoutes.delete(
  */
 
 //getting booking by id
-BookingRoutes.get("/getbooking/:id", authenticateUser, async (req, res) => {
+BookingRoutes.get("/getbooking/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -510,7 +505,7 @@ BookingRoutes.get("/getbooking/:id", authenticateUser, async (req, res) => {
  */
 
 //Getting all bookings
-BookingRoutes.get("/all", authenticateUser, async (req, res) => {
+BookingRoutes.get("/all", async (req, res) => {
   try {
     const Allbookings = await Booking.find({ isDeleted: false })
       .populate("user", "_id name email")
@@ -565,7 +560,7 @@ BookingRoutes.get("/all", authenticateUser, async (req, res) => {
  */
 
 // Combined filter route
-BookingRoutes.get("/bookings/filter", authenticateUser, async (req, res) => {
+BookingRoutes.get("/bookings/filter", async (req, res) => {
   const {
     startDate,
     endDate,
@@ -698,39 +693,35 @@ BookingRoutes.get("/bookings/filter", authenticateUser, async (req, res) => {
  */
 
 //get bokkings by user id
-BookingRoutes.get(
-  "/getbookings/user/:userId",
-  authenticateUser,
-  async (req, res) => {
-    const { userId } = req.params;
+BookingRoutes.get("/getbookings/user/:userId", async (req, res) => {
+  const { userId } = req.params;
 
-    try {
-      // Fetch bookings of this specific user
-      // const userBookings = await Booking.find({
-      //   user_id: userId, // or use `userId` field based on your schema
-      //   isDeleted: false,
-      // }).sort({ createdAt: -1 });
-      const userBookings = await Booking.find({
-        isDeleted: false,
-        $or: [{ user: userId }, { user_id: userId }],
-      }).sort({ createdAt: -1 });
+  try {
+    // Fetch bookings of this specific user
+    // const userBookings = await Booking.find({
+    //   user_id: userId, // or use `userId` field based on your schema
+    //   isDeleted: false,
+    // }).sort({ createdAt: -1 });
+    const userBookings = await Booking.find({
+      isDeleted: false,
+      $or: [{ user: userId }, { user_id: userId }],
+    }).sort({ createdAt: -1 });
 
-      if (!userBookings.length) {
-        return res.status(200).send({
-          message: "No bookings found for this user",
-          bookings: [],
-        });
-      }
-
+    if (!userBookings.length) {
       return res.status(200).send({
-        message: "User bookings fetched successfully",
-        bookings: userBookings,
+        message: "No bookings found for this user",
+        bookings: [],
       });
-    } catch (err) {
-      console.error("Error in /getbookings/user/:userId:", err.message);
-      return res.status(500).send({ message: err.message });
     }
+
+    return res.status(200).send({
+      message: "User bookings fetched successfully",
+      bookings: userBookings,
+    });
+  } catch (err) {
+    console.error("Error in /getbookings/user/:userId:", err.message);
+    return res.status(500).send({ message: err.message });
   }
-);
+});
 
 export default BookingRoutes;

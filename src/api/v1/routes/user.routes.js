@@ -6,10 +6,7 @@ import nodemailer from "nodemailer"; // Used to send emails
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import {
-  authenticateUser,
-  authorizeDevRole,
-} from "#middlewares/authMiddleware.js";
+import { authorizeDevRole } from "#middlewares/authMiddleware.js";
 import e from "express";
 dotenv.config();
 const saltRounds = 5;
@@ -57,7 +54,7 @@ const UserRoutes = express.Router();
 //Creating User
 UserRoutes.post(
   "/adduser",
-  authenticateUser,
+
   authorizeDevRole,
   async (req, res) => {
     try {
@@ -141,7 +138,7 @@ UserRoutes.post(
 //edit user
 UserRoutes.patch(
   "/edituser/:id",
-  authenticateUser,
+
   authorizeDevRole,
   async (req, res) => {
     try {
@@ -221,7 +218,7 @@ UserRoutes.patch(
 // Deleting User
 UserRoutes.delete(
   "/deleteuser/:id",
-  authenticateUser,
+
   authorizeDevRole,
   async (req, res) => {
     try {
@@ -258,7 +255,7 @@ UserRoutes.delete(
  */
 
 //listing all users
-UserRoutes.get("/all", authenticateUser, authorizeDevRole, async (req, res) => {
+UserRoutes.get("/all", authorizeDevRole, async (req, res) => {
   try {
     const Users = await User.find({}).select("-password");
     if (Users.length === 0) {
@@ -395,7 +392,7 @@ UserRoutes.patch("/logout/:id", async (req, res) => {
 });
 
 //getting all the bookings for specific user
-UserRoutes.get("/bookings/:id", authenticateUser, async (req, res) => {
+UserRoutes.get("/bookings/:id", async (req, res) => {
   const id = req.params.id;
   try {
     if (!req.params.id) {
@@ -418,7 +415,7 @@ UserRoutes.get("/bookings/:id", authenticateUser, async (req, res) => {
 });
 
 //unified search
-UserRoutes.get("/:id?", authenticateUser, async (req, res) => {
+UserRoutes.get("/:id?", async (req, res) => {
   const booking_id = req.params.id; // This may be undefined if no id is provided
   const searchPattern = req.query.pattern; // Search pattern from the query parameter
   const userRole = req.query.userRole; // Assuming user's role is stored in req.user

@@ -1,11 +1,10 @@
 import express from "express";
 import ProformaInvoice from "#models/ProformaInvoice.model.js";
-import { authenticateUser } from "#middlewares/authMiddleware.js";
 
 const ProformaRoutes = express.Router();
 
 // Create Proforma
-ProformaRoutes.post("/create", authenticateUser, async (req, res) => {
+ProformaRoutes.post("/create", async (req, res) => {
   try {
     const invoice = new ProformaInvoice({
       ...req.body,
@@ -28,7 +27,7 @@ ProformaRoutes.post("/create", authenticateUser, async (req, res) => {
 });
 
 // Get all
-ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
+ProformaRoutes.get("/view", async (req, res) => {
   try {
     const filter = {};
     const elevatedRoles = ["hr", "dev", "srdev"];
@@ -55,7 +54,7 @@ ProformaRoutes.get("/view", authenticateUser, async (req, res) => {
 });
 
 // Get by id
-ProformaRoutes.get("/:id", authenticateUser, async (req, res) => {
+ProformaRoutes.get("/:id", async (req, res) => {
   try {
     const isPrivileged = ["admin", "dev", "srdev", "hr"].includes(
       req.user.user_role
@@ -88,7 +87,7 @@ ProformaRoutes.get("/:id", authenticateUser, async (req, res) => {
 });
 
 // Update
-ProformaRoutes.put("/:id", authenticateUser, async (req, res) => {
+ProformaRoutes.put("/:id", async (req, res) => {
   try {
     const invoice = await ProformaInvoice.findOne({
       _id: req.params.id,
@@ -137,7 +136,7 @@ ProformaRoutes.put("/:id", authenticateUser, async (req, res) => {
 });
 
 // Delete
-ProformaRoutes.delete("/:id", authenticateUser, async (req, res) => {
+ProformaRoutes.delete("/:id", async (req, res) => {
   try {
     const isPrivileged = ["admin", "dev", "srdev", "hr"].includes(
       req.user.user_role

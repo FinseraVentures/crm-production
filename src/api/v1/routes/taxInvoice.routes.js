@@ -1,11 +1,10 @@
 import express from "express";
 import TaxInvoice from "#models/TaxInvoice.model.js";
-import { authenticateUser } from "#middlewares/authMiddleware.js";
 
 const TaxInvoiceRoutes = express.Router();
 const PRIVILEGED_ROLES = ["admin", "dev", "srdev", "hr"];
 
-TaxInvoiceRoutes.post("/create", authenticateUser, async (req, res) => {
+TaxInvoiceRoutes.post("/create", async (req, res) => {
   try {
     // Whitelist allowed fields only
     const {
@@ -47,7 +46,7 @@ TaxInvoiceRoutes.post("/create", authenticateUser, async (req, res) => {
   }
 });
 
-TaxInvoiceRoutes.get("/view", authenticateUser, async (req, res) => {
+TaxInvoiceRoutes.get("/view", async (req, res) => {
   try {
     const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
 
@@ -69,7 +68,7 @@ TaxInvoiceRoutes.get("/view", authenticateUser, async (req, res) => {
 });
 
 // Get by id
-TaxInvoiceRoutes.get("/:id", authenticateUser, async (req, res) => {
+TaxInvoiceRoutes.get("/:id", async (req, res) => {
   try {
     const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
 
@@ -100,7 +99,7 @@ TaxInvoiceRoutes.get("/:id", authenticateUser, async (req, res) => {
 });
 
 // Update
-TaxInvoiceRoutes.put("/:id", authenticateUser, async (req, res) => {
+TaxInvoiceRoutes.put("/:id", async (req, res) => {
   try {
     const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
 
@@ -145,7 +144,7 @@ TaxInvoiceRoutes.put("/:id", authenticateUser, async (req, res) => {
 });
 
 // Delete
-TaxInvoiceRoutes.delete("/:id", authenticateUser, async (req, res) => {
+TaxInvoiceRoutes.delete("/:id", async (req, res) => {
   try {
     const isPrivileged = PRIVILEGED_ROLES.includes(req.user.user_role);
 

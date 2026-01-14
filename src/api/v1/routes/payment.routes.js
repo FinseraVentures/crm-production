@@ -2,7 +2,6 @@ import express from "express";
 import Razorpay from "razorpay";
 import dotenv from "dotenv";
 import { appendToGoogleSheet } from "#utils/googleSheetLog.js";
-import { authenticateUser } from "#middlewares/authMiddleware.js";
 import PaymentLink from "#models/Payment.model.js";
 import PaymentQr from "#models/Qr.model.js";
 
@@ -76,8 +75,8 @@ const razorpay = new Razorpay({
  *         description: Razorpay error
  */
 
-// 🟢 CREATE PAYMENT LINK + SAVE TO MONGO + SAVE LOG TO SHEET
-PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
+//  CREATE PAYMENT LINK + SAVE TO MONGO + SAVE LOG TO SHEET
+PaymentRoutes.post("/create-upi-link", async (req, res) => {
   const ownerUserId = req.user._id;
   try {
     const {
@@ -177,7 +176,7 @@ PaymentRoutes.post("/create-upi-link", authenticateUser, async (req, res) => {
  */
 
 // 🟠 GET ALL PAYMENT LINKS
-PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
+PaymentRoutes.get("/payment-links", async (req, res) => {
   try {
     const filter = {};
     const elevatedRoles = ["dev", "srdev", "hr"];
@@ -241,53 +240,49 @@ PaymentRoutes.get("/payment-links", authenticateUser, async (req, res) => {
  */
 
 // 🔵 UPDATE PAYMENT LINK STATUS (PATCH)
-PaymentRoutes.patch(
-  "/payment-links/:id/status",
-  authenticateUser,
-  async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
+PaymentRoutes.patch("/payment-links/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
 
-    // Validate input
-    if (!status) {
-      return res.status(400).json({
-        success: false,
-        message: "Status is required.",
-      });
-    }
-
-    try {
-      //  Patch only the provided field
-      const updated = await PaymentLink.findByIdAndUpdate(
-        id,
-        { $set: { status } },
-        { new: true, runValidators: true }
-      );
-
-      //  If ID is invalid or no document found
-      if (!updated) {
-        return res.status(404).json({
-          success: false,
-          message: "Payment link not found.",
-        });
-      }
-
-      // Success response
-      return res.status(200).json({
-        success: true,
-        message: "Payment link status updated successfully.",
-        data: updated,
-      });
-    } catch (error) {
-      console.error("Status update error:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to update payment link status.",
-        error: error.message,
-      });
-    }
+  // Validate input
+  if (!status) {
+    return res.status(400).json({
+      success: false,
+      message: "Status is required.",
+    });
   }
-);
+
+  try {
+    //  Patch only the provided field
+    const updated = await PaymentLink.findByIdAndUpdate(
+      id,
+      { $set: { status } },
+      { new: true, runValidators: true }
+    );
+
+    //  If ID is invalid or no document found
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment link not found.",
+      });
+    }
+
+    // Success response
+    return res.status(200).json({
+      success: true,
+      message: "Payment link status updated successfully.",
+      data: updated,
+    });
+  } catch (error) {
+    console.error("Status update error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update payment link status.",
+      error: error.message,
+    });
+  }
+});
 
 /**
  * @swagger
@@ -313,7 +308,7 @@ PaymentRoutes.patch(
  */
 
 // 🔴 GET PAYMENT LINK BY ID
-PaymentRoutes.get("/payment-links/:id", authenticateUser, async (req, res) => {
+PaymentRoutes.get("/payment-links/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -375,7 +370,7 @@ PaymentRoutes.get("/payment-links/:id", authenticateUser, async (req, res) => {
  *       500:
  *         description: QR creation failed
  */
-PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
+PaymentRoutes.post("/create-qr", async (req, res) => {
   const ownerUserId = req.user._id;
 
   try {
@@ -489,7 +484,7 @@ PaymentRoutes.post("/create-qr", authenticateUser, async (req, res) => {
   }
 });
 //Get all Qr codes
-PaymentRoutes.get("/qr-codes", authenticateUser, async (req, res) => {
+PaymentRoutes.get("/qr-codes", async (req, res) => {
   try {
     const filter = {};
 
