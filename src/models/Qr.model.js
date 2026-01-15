@@ -31,10 +31,6 @@ const PaymentQRSchema = new mongoose.Schema(
     qr_image: {
       type: String,
     },
-    qr_base64: {
-      type: String,
-    },
-
     usage: {
       type: String,
       default: "single_use",

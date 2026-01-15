@@ -459,7 +459,7 @@ PaymentRoutes.post("/create-qr", async (req, res) => {
         purpose: purpose || "UPI QR Payment",
         fixed_amount: fixed_amount ?? true,
         close_by: closeBy,
-        qr_base64: base64QR ? `data:image/png;base64,${base64QR}` : null,
+        // qr_base64: base64QR ? `data:image/png;base64,${base64QR}` : null,
         status: "Pending",
       });
     } catch (dbErr) {
@@ -473,7 +473,7 @@ PaymentRoutes.post("/create-qr", async (req, res) => {
       qr_id: qr.id,
       qr_image: qr.image_url,
       qr_data: qr,
-      qr_base64: base64QR ? `data:image/png;base64,${base64QR}` : null,
+      // qr_base64: base64QR ? `data:image/png;base64,${base64QR}` : null,
       savedRecord: savedQR, // may be null if DB save failed
     });
   } catch (err) {
