@@ -10,7 +10,9 @@ ProformaRoutes.post("/create", async (req, res) => {
       ...req.body,
       user: req.user._id, // ✅ enforce owner
     });
-
+    const lastItem = await ProformaInvoice.findOne().sort({ _id: -1 });
+    const prev = lastItem.invoiceNumber.split("INV")[1];
+    invoice.invoiceNumber = "INV" + prev + 1;
     await invoice.save();
 
     res.status(201).json({
