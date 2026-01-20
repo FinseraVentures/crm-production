@@ -10,9 +10,20 @@ ProformaRoutes.post("/create", async (req, res) => {
       ...req.body,
       user: req.user._id, // ✅ enforce owner
     });
-    const lastItem = await ProformaInvoice.findOne().sort({ _id: -1 });
-    const prev = lastItem.invoiceNumber.split("INV")[1];
-    invoice.invoiceNumber = "INV" + prev + 1;
+    const lastItem = await ProformaInvoice.findOne().sort({ createdAt: -1 }); // or {_id:-1}
+
+    let nextNumber = 1;
+
+    if (lastItem?.invoiceNumber) {
+      const match = lastItem.invoiceNumber.match(/\d+/); // extracts number part
+      const lastNumber = match ? parseInt(match[0], 10) : 0;
+
+      nextNumber = lastNumber + 1;
+    }
+
+    // pad to 3 digits => INV001, INV002...
+    invoice.invoiceNumber = `INV${String(nextNumber).padStart(3, "0")}`;
+
     await invoice.save();
 
     res.status(201).json({
@@ -59,7 +70,7 @@ ProformaRoutes.get("/view", async (req, res) => {
 ProformaRoutes.get("/:id", async (req, res) => {
   try {
     const isPrivileged = ["admin", "dev", "srdev", "hr"].includes(
-      req.user.user_role
+      req.user.user_role,
     );
 
     const query = isPrivileged
@@ -141,7 +152,7 @@ ProformaRoutes.put("/:id", async (req, res) => {
 ProformaRoutes.delete("/:id", async (req, res) => {
   try {
     const isPrivileged = ["admin", "dev", "srdev", "hr"].includes(
-      req.user.user_role
+      req.user.user_role,
     );
 
     const query = isPrivileged
