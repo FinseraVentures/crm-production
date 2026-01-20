@@ -43,7 +43,7 @@ ProformaRoutes.post("/create", async (req, res) => {
 ProformaRoutes.get("/view", async (req, res) => {
   try {
     const filter = {};
-    const elevatedRoles = ["hr", "dev", "srdev"];
+    const elevatedRoles = ["dev", "srdev"];
 
     if (!elevatedRoles.includes(req.user.user_role)) {
       filter.user = req.user._id;
