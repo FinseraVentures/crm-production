@@ -47,8 +47,8 @@ const welcomeRoutes = express.Router();
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 
-welcomeRoutes.post("/api/welcome", async (req, res) => {
-  const { email, name, amount } = req.body;
+welcomeRoutes.post("/welcome", async (req, res) => {
+  const { email } = req.body;
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.hostinger.com",
@@ -61,49 +61,43 @@ welcomeRoutes.post("/api/welcome", async (req, res) => {
     });
 
     const mailOptions = {
-      to: `${email}`,
-      from: "no-reply@finseraa.org",
-      subject: `Warm Welcome to ${name}  from Finsera Ventures Private Limited
-`,
+      to: email,
+      from: "bookings@finseraa.org",
+      subject: "Booking Confirmation – Finsera Ventures Private Limited",
       html: `
-        <p>Dear Sir/Madam,</p>
+    <p>Dear Sir/Madam,</p>
 
-        <p>
-          We are pleased to extend a warm welcome to <b>${name}</b> as a valued client of 
-          <b>Finsera Ventures Private Limited</b>. We sincerely appreciate the trust you’ve placed in us and are 
-          excited about the opportunity to collaborate and contribute to your success.
-        </p>
+    <p>
+      Thank you for placing your booking with 
+      <b>Finsera Ventures Private Limited</b>.
+      We have successfully received your request and are pleased to confirm the same.
+    </p>
 
-        <p>
-          At <b>Finsera Ventures Private Limited</b>, we are dedicated to offering high-quality, tailored services 
-          designed to meet the unique needs of <b>${name}</b>. Our experienced team is committed to providing 
-          expert support and guidance at every stage of our partnership to ensure a smooth and successful experience.
-        </p>
+    <p>
+      Our team is currently reviewing the details of your booking.
+      One of our representatives will reach out to you shortly to coordinate
+      and gather any additional information, if required.
+    </p>
 
-        <p>
-          To facilitate a seamless process, one of our dedicated representatives will be in touch shortly 
-          to coordinate with you and gather any necessary information. Please don’t hesitate to reach out 
-          with any questions, concerns, or special requests. Your satisfaction is our highest priority, and 
-          we are here to support you every step of the way.
-        </p>
+    <p>
+      At <b>Finsera Ventures Private Limited</b>, we are committed to delivering
+      reliable and high-quality services tailored to your requirements.
+      Your trust in us is highly valued, and we look forward to working with you.
+    </p>
 
-        <p>
-          Thank you once again for choosing <b>Finsera Ventures Private Limited</b>. We look forward to a successful 
-          and fruitful collaboration, and to helping <b>${name}</b> achieve its business objectives.
-        </p>
+    <p>
+      If you have any questions or need immediate assistance, please contact us at
+      <a href="mailto:support@finseraa.org">support@finseraa.org</a>.
+    </p>
 
-        <p>
-          For any queries kindly mail us at <a href="mailto:support@finseraa.org">support@finseraa.org</a>
-        </p>
+    <p style="color: #555; font-size: 14px; margin-top: 20px;">
+      <i>This is an automated email sent after booking confirmation.</i>
+    </p>
 
-        <p style="color: #555; font-size: 14px; margin-top: 20px;">
-          <i>This is a system-generated email. Please do not reply to this email.</i>
-        </p>
-
-        <p>Warm regards,</p>
-        <p><b>Finsera Ventures Private Limited</b></p>
-        <p><a href="https://Finseraa.com">Finseraa.com</a></p>
-      `,
+    <p>Warm regards,</p>
+    <p><b>Finsera Ventures Private Limited</b></p>
+    <p><a href="https://finseraa.com">finseraa.com</a></p>
+  `,
     };
 
     await transporter.sendMail(mailOptions);

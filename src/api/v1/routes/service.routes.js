@@ -11,28 +11,6 @@ const ServiceRoutes = express.Router();
  *   description: Service master management APIs
  */
 
-// ServiceRoutes.post("/bulk", async (req, res) => {
-// console.log(typeof(servicesList))
-//     try {
-//     // const { contacts } =servicesList; // Expecting an array
-//     // if (!Array.isArray(contacts)) {
-//     //   return res.status(400).json({ message: "contacts must be an array" });
-//     // }
-//     const data=servicesList
-//     const contacts = data.map(item => ({
-//         label: item.label,
-//         value: item.value,
-//         status: item.status ? item.status : true
-//     }));
-
-//     const result = await Service.insertMany(contacts);
-//     res.status(201).json({ success: true, count: result.length, data: result });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
 /**
  * @swagger
  * /api/v1/services:
@@ -147,7 +125,7 @@ ServiceRoutes.patch("/edit/:id", async (req, res) => {
     const updatedService = await Service.findByIdAndUpdate(
       id,
       { $set: updates },
-      { new: true, runValidators: true } // Return updated document and validate inputs
+      { new: true, runValidators: true }, // Return updated document and validate inputs
     );
 
     if (!updatedService) {
