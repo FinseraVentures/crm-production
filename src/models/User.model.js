@@ -9,11 +9,16 @@ const userSchema = mongoose.Schema(
     isActive: { type: Boolean, default: false },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      default: null,
+    },
   },
   {
     timestamps: false,
     versionKey: false,
-  }
+  },
 );
 
 export default mongoose.model("User", userSchema);

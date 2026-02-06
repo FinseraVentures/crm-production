@@ -14,7 +14,7 @@ const bookingSchema = mongoose.Schema(
     company_name: { type: String },
     contact_person: { type: String, required: true },
     email: { type: String, required: true },
-    contact_no: { type: Number, required: true },
+    contact_no: { type: String, required: true },
     services: { type: [String], required: true },
     closed_by: { type: String },
     total_amount: { type: Number, required: true },
@@ -42,14 +42,14 @@ const bookingSchema = mongoose.Schema(
               old: mongoose.Schema.Types.Mixed,
               new: mongoose.Schema.Types.Mixed,
             },
-            { _id: false }
+            { _id: false },
           ),
         },
       },
     ],
     // Trash/audit fields are provided by Base model
   },
-  { versionKey: false, timestamps: true }
+  { versionKey: false, timestamps: true },
 );
 applyBase(bookingSchema);
 export default mongoose.model("Booking", bookingSchema);

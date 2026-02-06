@@ -7,6 +7,19 @@ function applyBase(schema) {
   schema.options.versionKey = false;
 
   // Common fields for soft-delete, auditing and metadata
+  // 🔒 Auto-exclude soft-deleted docs from queries
+  schema.pre(
+    ["find", "findOne", "findOneAndUpdate", "countDocuments"],
+    function (next) {
+      if (!this.getQuery().includeDeleted) {
+        this.where({ isDeleted: false });
+      } else {
+        delete this.getQuery().includeDeleted;
+      }
+      next();
+    },
+  );
+
   schema.add({
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
@@ -29,6 +42,24 @@ function applyBase(schema) {
     },
     meta: { type: mongoose.Schema.Types.Mixed, default: {} },
   });
+  // Soft delete
+  schema.methods.softDelete = function (userId, reason = null) {
+    this.isDeleted = true;
+    this.deletedAt = new Date();
+    this.deletedBy = userId;
+    this.reason = reason;
+    return this.save();
+  };
+
+  // Restore
+  schema.methods.restore = function (userId) {
+    this.isDeleted = false;
+    this.deletedAt = null;
+    this.deletedBy = null;
+    this.restoredAt = new Date();
+    this.restoredBy = userId;
+    return this.save();
+  };
 
   // Standardize toJSON to remove internal fields
   if (!schema.methods.toJSON) {
