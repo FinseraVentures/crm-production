@@ -1,6 +1,7 @@
 import express from "express";
 import Booking from "#models/Booking.model.js";
 import { normalizeDateOnly } from "#utils/date.js";
+import { appendToGoogleSheet } from "#utils/masterFile.js";
 
 const BookingRoutes = express.Router();
 
@@ -97,7 +98,7 @@ BookingRoutes.post("/addbooking", async (req, res) => {
     .filter(
       ([key, value]) =>
         !value ||
-        (key === "services" && (!Array.isArray(value) || value.length === 0))
+        (key === "services" && (!Array.isArray(value) || value.length === 0)),
     )
     .map(([key]) => key);
 
@@ -105,6 +106,26 @@ BookingRoutes.post("/addbooking", async (req, res) => {
     return res.status(400).send({
       message: `Missing required fields: ${missingFields.join(", ")}`,
     });
+  }
+
+  // Save to Google Sheet
+  try {
+    await appendToGoogleSheet({
+      companyName: company_name,
+      bdmName: req.user.name,
+      contactNumber: contact_no,
+      email: email,
+      bookingDate: date,
+      paymentDate: payment_date,
+      service: services,
+      totalAmount: total_amount,
+      receivedAmount: term_1 + term_2 + term_3,
+      agreementSent: "No",
+      applicationStatus: "Processing",
+      note: remark,
+    });
+  } catch (sheetErr) {
+    console.error("Sheet logging failed:", sheetErr);
   }
 
   try {
@@ -245,7 +266,7 @@ BookingRoutes.patch("/editbooking/:id", async (req, res) => {
           $set: updates,
           $push: { updatedhistory: historyEntry },
         },
-        { new: true }
+        { new: true },
       );
 
       return res.status(200).send({
@@ -307,7 +328,7 @@ BookingRoutes.patch("/trash/:id", async (req, res) => {
         deletedAt: new Date(),
         deletedBy: req.user._id,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!trashedBooking) {
@@ -376,7 +397,7 @@ BookingRoutes.patch("/restore/:id", async (req, res) => {
     const restoredBooking = await Booking.findByIdAndUpdate(
       id,
       { isDeleted: false, deletedAt: null },
-      { new: true }
+      { new: true },
     );
 
     if (!restoredBooking) {
