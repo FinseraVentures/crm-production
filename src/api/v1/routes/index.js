@@ -14,12 +14,13 @@ import welcomeRoutes from "./welcome.routes.js";
 import healthRoutes from "./health.routes.js";
 import { authenticateUser } from "#middlewares/authMiddleware.js";
 import { contextMiddleware } from "#middlewares/context.middleware.js";
-
+import dashboardRoutes from "./dashboard.routes.js";
 const router = Router();
 router.use("/health", healthRoutes);
 router.use("/user", userRoutes);
 router.use(authenticateUser);
 router.use(contextMiddleware);
+router.use("/dashboard", dashboardRoutes);
 router.use("/booking", bookingRoutes);
 router.use("/services", serviceRoutes);
 router.use("/employee", employeeRoutes);
