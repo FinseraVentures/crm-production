@@ -107,25 +107,30 @@ BookingRoutes.post("/addbooking", async (req, res) => {
       message: `Missing required fields: ${missingFields.join(", ")}`,
     });
   }
+  const receivedAmount = [term_1, term_2, term_3].reduce(
+    (sum, val) => sum + (Number(val) || 0),
+    0,
+  );
 
-  // Save to Google Sheet
   try {
     await appendToGoogleSheet({
       companyName: company_name,
       bdmName: req.user.name,
       contactNumber: contact_no,
       email: email,
-      bookingDate: date,
+      bookingDate: new Date().toLocaleDateString("en-GB"),
       paymentDate: payment_date,
       service: services,
       totalAmount: total_amount,
-      receivedAmount: term_1 + term_2 + term_3,
+      receivedAmount: receivedAmount,
       agreementSent: "No",
       applicationStatus: "Processing",
       note: remark,
     });
-  } catch (sheetErr) {
-    console.error("Sheet logging failed:", sheetErr);
+
+    console.log("Sheet logged successfully");
+  } catch (err) {
+    console.error("Sheet logging failed:", err.message);
   }
 
   try {
