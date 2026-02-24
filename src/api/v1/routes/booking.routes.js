@@ -113,27 +113,6 @@ BookingRoutes.post("/addbooking", async (req, res) => {
   );
 
   try {
-    await appendToGoogleSheet({
-      companyName: company_name,
-      bdmName: req.user.name,
-      contactNumber: contact_no,
-      email: email,
-      bookingDate: new Date().toLocaleDateString("en-GB"),
-      paymentDate: payment_date,
-      service: services,
-      totalAmount: total_amount,
-      receivedAmount: receivedAmount,
-      agreementSent: "No",
-      applicationStatus: "Processing",
-      note: remark,
-    });
-
-    console.log("Sheet logged successfully");
-  } catch (err) {
-    console.error("Sheet logging failed:", err.message);
-  }
-
-  try {
     const new_booking = {
       user: ownerUserId,
       bdmName: req.user.name,
@@ -159,6 +138,27 @@ BookingRoutes.post("/addbooking", async (req, res) => {
     };
 
     const booking = await Booking.create(new_booking);
+
+    try {
+      await appendToGoogleSheet({
+        companyName: company_name,
+        bdmName: req.user.name,
+        contactNumber: contact_no,
+        email: email,
+        bookingDate: booking.createdAt.toISOString().split("T")[0],
+        paymentDate: payment_date,
+        service: services,
+        totalAmount: total_amount,
+        receivedAmount: receivedAmount,
+        agreementSent: "No",
+        applicationStatus: "Processing",
+        note: remark,
+      });
+
+      console.log("Sheet logged successfully");
+    } catch (err) {
+      console.error("Sheet logging failed:", err.message);
+    }
     return res.status(201).send({
       Message: "Booking Created Successfully",
       booking_id: booking._id,
